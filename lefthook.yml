@@ -1,0 +1,16 @@
+pre-commit:
+  jobs:
+    - name: typecheck
+      glob: "*.{ts,tsx}"
+      run: pnpm exec tsc --noEmit
+
+pre-push:
+  jobs:
+    - name: tests
+      group:
+        piped: true
+        jobs:
+          - name: unit
+            run: pnpm test
+          - name: e2e
+            run: pnpm test:e2e

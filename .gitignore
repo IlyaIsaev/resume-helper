@@ -18,3 +18,4 @@ blob-report/
 playwright/.cache/
 .playwright-mcp/
 /*.png
+lefthook-local.yml

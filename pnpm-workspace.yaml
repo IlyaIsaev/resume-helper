@@ -1,5 +1,6 @@
 allowBuilds:
   esbuild: true
+  lefthook: true
   workerd: true
 minimumReleaseAgeExclude:
   - '@cloudflare/workerd-darwin-64@1.20260907.1'

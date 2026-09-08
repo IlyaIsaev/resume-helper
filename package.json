@@ -45,6 +45,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/browser-playwright": "^5.0.0",
     "drizzle-kit": "^0.31.10",
+    "lefthook": "^2.1.12",
     "miniflare": "^5.20260907.0-alpha",
     "nitro": "^3.0.260311-beta",
     "tailwindcss": "^4.2.2",
