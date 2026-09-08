@@ -1,7 +1,7 @@
 import { useForm } from '@tanstack/react-form'
 import { useRouter } from '@tanstack/react-router'
 import { CircleAlert } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as v from 'valibot'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -23,13 +23,24 @@ import { careerStepSchema } from '@/lib/career-step/schema'
 
 export function AddCareerStepDialog() {
   const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    triggerRef.current?.focus({ preventScroll: true })
+  }, [])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full">Add career step</Button>
+        <Button
+          ref={triggerRef}
+          className="w-full focus:ring-1 focus:ring-ring"
+          autoFocus
+        >
+          Add career step
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add career step</DialogTitle>
           <DialogDescription>
@@ -156,6 +167,7 @@ function CareerStepForm({ onSuccess }: { onSuccess: () => void }) {
                 <Textarea
                   id={field.name}
                   name={field.name}
+                  className="min-h-40"
                   value={field.state.value}
                   onBlur={() => {
                     field.handleBlur()
@@ -182,6 +194,7 @@ function CareerStepForm({ onSuccess }: { onSuccess: () => void }) {
                 <Textarea
                   id={field.name}
                   name={field.name}
+                  className="min-h-40"
                   value={field.state.value}
                   onBlur={() => {
                     field.handleBlur()

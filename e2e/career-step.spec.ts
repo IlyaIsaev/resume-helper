@@ -13,6 +13,15 @@ async function signUpAsDemoUser(page: Page) {
   ).toBeVisible()
 }
 
+test('add career step is focused when the career page opens', async ({
+  page,
+}) => {
+  await signUpAsDemoUser(page)
+  await expect(
+    page.getByRole('button', { name: 'Add career step' }),
+  ).toBeFocused()
+})
+
 test('adds a career step card from the dialog form', async ({ page }) => {
   await signUpAsDemoUser(page)
 
