@@ -239,6 +239,11 @@ test('deletes a career step from the card', async ({ page }) => {
   await signUpAsDemoUser(page);
   await addSeniorEngineerStep(page);
 
+  await page.reload();
+  await expect(
+    page.getByTestId('career-step-card').getByText('Senior Engineer'),
+  ).toBeVisible();
+
   const card = page.getByTestId('career-step-card');
   await card.hover();
   await card.getByRole('button', { name: 'Delete career step' }).click();

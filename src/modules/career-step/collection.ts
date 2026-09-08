@@ -63,10 +63,11 @@ export function useCareerStepCollection() {
   return useDbClient().collection(careerStepCollection);
 }
 
-export function ensureCareerStepInCollection(
+export async function ensureCareerStepInCollection(
   collection: ReturnType<typeof useCareerStepCollection>,
   step: CareerStep,
 ) {
+  await collection.preload();
   if (collection.get(step.id)) return;
   collection.utils.writeUpsert(step);
 }

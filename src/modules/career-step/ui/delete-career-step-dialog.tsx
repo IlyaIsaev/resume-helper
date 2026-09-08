@@ -30,7 +30,7 @@ export function DeleteCareerStepDialog({ step }: { step: CareerStep }) {
     setDeleteError(null);
 
     try {
-      ensureCareerStepInCollection(collection, step);
+      await ensureCareerStepInCollection(collection, step);
       const tx = collection.delete(step.id);
       await persistCareerStepMutation(tx);
       toast.success(`Career step “${step.position}” was deleted.`);

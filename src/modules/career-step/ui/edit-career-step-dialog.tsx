@@ -68,7 +68,7 @@ export function EditCareerStepDialog({
         onSubmit={async (value) => {
           const previousPosition = step.position;
           try {
-            ensureCareerStepInCollection(collection, step);
+            await ensureCareerStepInCollection(collection, step);
             const tx = collection.update(step.id, (draft) => {
               const next = careerStepFromFormValues(
                 step.id,
