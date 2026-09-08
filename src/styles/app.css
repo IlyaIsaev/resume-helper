@@ -1,4 +1,4 @@
-@import 'tailwindcss' source('../');
+@import "tailwindcss" source('../');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -100,8 +100,8 @@
   --color-smui-surface-2: hsl(var(--smui-surface-2));
   --color-smui-surface-3: hsl(var(--smui-surface-3));
   --color-smui-border-hover: hsl(var(--smui-border-hover));
-  --font-sans: 'JetBrains Mono', ui-monospace, monospace;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;

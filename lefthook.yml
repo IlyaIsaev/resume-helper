@@ -1,5 +1,9 @@
 pre-commit:
   jobs:
+    - name: biome
+      glob: "*.{js,ts,cjs,mjs,jsx,tsx,json,jsonc,css}"
+      run: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      stage_fixed: true
     - name: typecheck
       glob: "*.{ts,tsx}"
       run: pnpm exec tsc --noEmit

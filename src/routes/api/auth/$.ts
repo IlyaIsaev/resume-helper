@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { getAuth } from '@/lib/auth'
+import { createFileRoute } from '@tanstack/react-router';
+import { getAuth } from '@/modules/auth';
 
 export const Route = createFileRoute('/api/auth/$')({
   server: {
@@ -8,4 +8,4 @@ export const Route = createFileRoute('/api/auth/$')({
       POST: ({ request }) => getAuth().handler(request),
     },
   },
-})
+});

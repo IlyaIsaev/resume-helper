@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProtectedRouteImport } from './routes/_protected'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as ProtectedIndexRouteImport } from './routes/_protected/index'
+import { Route as ProtectedCareerRouteImport } from './routes/_protected/_career'
 import { Route as ProtectedAppRouteImport } from './routes/_protected/app'
 import { Route as ProtectedProfileRouteImport } from './routes/_protected/profile'
+import { Route as ProtectedCareerIndexRouteImport } from './routes/_protected/_career/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ProtectedCareerCareerStepsStepIdEditRouteImport } from './routes/_protected/_career/career-steps/$stepId/edit'
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: '/_protected',
@@ -31,9 +33,8 @@ const SignUpRoute = SignUpRouteImport.update({
   path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedIndexRoute = ProtectedIndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ProtectedCareerRoute = ProtectedCareerRouteImport.update({
+  id: '/_career',
   getParentRoute: () => ProtectedRoute,
 } as any)
 const ProtectedAppRoute = ProtectedAppRouteImport.update({
@@ -46,52 +47,83 @@ const ProtectedProfileRoute = ProtectedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => ProtectedRoute,
 } as any)
+const ProtectedCareerIndexRoute = ProtectedCareerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProtectedCareerRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProtectedCareerCareerStepsStepIdEditRoute =
+  ProtectedCareerCareerStepsStepIdEditRouteImport.update({
+    id: '/career-steps/$stepId/edit',
+    path: '/career-steps/$stepId/edit',
+    getParentRoute: () => ProtectedCareerRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof ProtectedIndexRoute
+  '/': typeof ProtectedCareerIndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/app': typeof ProtectedAppRoute
   '/profile': typeof ProtectedProfileRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/career-steps/$stepId/edit': typeof ProtectedCareerCareerStepsStepIdEditRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof ProtectedCareerIndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/app': typeof ProtectedAppRoute
   '/profile': typeof ProtectedProfileRoute
-  '/': typeof ProtectedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/career-steps/$stepId/edit': typeof ProtectedCareerCareerStepsStepIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_protected': typeof ProtectedRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/_protected/_career': typeof ProtectedCareerRouteWithChildren
   '/_protected/app': typeof ProtectedAppRoute
   '/_protected/profile': typeof ProtectedProfileRoute
-  '/_protected/': typeof ProtectedIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_protected/_career/': typeof ProtectedCareerIndexRoute
+  '/_protected/_career/career-steps/$stepId/edit': typeof ProtectedCareerCareerStepsStepIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/sign-up' | '/app' | '/profile' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/sign-in'
+    | '/sign-up'
+    | '/app'
+    | '/profile'
+    | '/api/auth/$'
+    | '/career-steps/$stepId/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sign-in' | '/sign-up' | '/app' | '/profile' | '/' | '/api/auth/$'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/sign-up'
+    | '/app'
+    | '/profile'
+    | '/api/auth/$'
+    | '/career-steps/$stepId/edit'
   id:
     | '__root__'
     | '/_protected'
     | '/sign-in'
     | '/sign-up'
+    | '/_protected/_career'
     | '/_protected/app'
     | '/_protected/profile'
-    | '/_protected/'
     | '/api/auth/$'
+    | '/_protected/_career/'
+    | '/_protected/_career/career-steps/$stepId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -124,11 +156,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected/': {
-      id: '/_protected/'
-      path: '/'
+    '/_protected/_career': {
+      id: '/_protected/_career'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof ProtectedIndexRouteImport
+      preLoaderRoute: typeof ProtectedCareerRouteImport
       parentRoute: typeof ProtectedRoute
     }
     '/_protected/app': {
@@ -145,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedProfileRouteImport
       parentRoute: typeof ProtectedRoute
     }
+    '/_protected/_career/': {
+      id: '/_protected/_career/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof ProtectedCareerIndexRouteImport
+      parentRoute: typeof ProtectedCareerRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -152,19 +191,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_protected/_career/career-steps/$stepId/edit': {
+      id: '/_protected/_career/career-steps/$stepId/edit'
+      path: '/career-steps/$stepId/edit'
+      fullPath: '/career-steps/$stepId/edit'
+      preLoaderRoute: typeof ProtectedCareerCareerStepsStepIdEditRouteImport
+      parentRoute: typeof ProtectedCareerRoute
+    }
   }
 }
 
+interface ProtectedCareerRouteChildren {
+  ProtectedCareerIndexRoute: typeof ProtectedCareerIndexRoute
+  ProtectedCareerCareerStepsStepIdEditRoute: typeof ProtectedCareerCareerStepsStepIdEditRoute
+}
+
+const ProtectedCareerRouteChildren: ProtectedCareerRouteChildren = {
+  ProtectedCareerIndexRoute: ProtectedCareerIndexRoute,
+  ProtectedCareerCareerStepsStepIdEditRoute:
+    ProtectedCareerCareerStepsStepIdEditRoute,
+}
+
+const ProtectedCareerRouteWithChildren = ProtectedCareerRoute._addFileChildren(
+  ProtectedCareerRouteChildren,
+)
+
 interface ProtectedRouteChildren {
+  ProtectedCareerRoute: typeof ProtectedCareerRouteWithChildren
   ProtectedAppRoute: typeof ProtectedAppRoute
   ProtectedProfileRoute: typeof ProtectedProfileRoute
-  ProtectedIndexRoute: typeof ProtectedIndexRoute
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedCareerRoute: ProtectedCareerRouteWithChildren,
   ProtectedAppRoute: ProtectedAppRoute,
   ProtectedProfileRoute: ProtectedProfileRoute,
-  ProtectedIndexRoute: ProtectedIndexRoute,
 }
 
 const ProtectedRouteWithChildren = ProtectedRoute._addFileChildren(
