@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788802636773,
+      "tag": "0000_small_jamie_braddock",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788855702017,
+      "tag": "0001_luxuriant_ben_urich",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788861719822,
+      "tag": "0002_gifted_lorna_dane",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+---
+description: Where unit and e2e tests live, and which runners to use
+alwaysApply: true
+---
+
+# Testing
+
+- E2E tests live only under `e2e/` (outside `src/`). Use Playwright (`@playwright/test`) with Chromium and `*.spec.ts` names. Run with `pnpm test:e2e`.
+- Unit tests live next to the covered file in a `tests/` folder, e.g. `src/lib/auth/schema.ts` → `src/lib/auth/tests/schema.test.ts`. Use Vitest Browser Mode (`pnpm test`). Pattern: `src/**/tests/**/*.test.ts(x)`.
+- Do not put Playwright specs in `src/`. Do not use a root `tests/` tree or sibling `src/foo.test.ts` files.
+
+```
+src/lib/auth/schema.ts          # entity
+src/lib/auth/tests/schema.test.ts  # unit (Vitest)
+
+e2e/sign-in.spec.ts             # e2e (Playwright)
+```
