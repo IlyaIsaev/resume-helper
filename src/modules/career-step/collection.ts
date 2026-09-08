@@ -4,27 +4,31 @@ import type { QueryClient } from '@tanstack/react-query';
 import {
   createCareerStep,
   deleteCareerStep,
-  listCareerSteps,
   updateCareerStep,
 } from './functions';
-import {
-  type CareerStep,
-  careerStepFromFormValues,
-  careerStepToFormValues,
-  toCareerStep,
-} from './schema';
+import { careerStepListQueryKeyRoot } from './list-query';
+import { type CareerStep, careerStepToFormValues } from './schema';
 
 export const careerStepCollection = collectionOptions(
   'career-steps',
-  (client) =>
-    queryCollectionOptions({
+  (client) => {
+    const queryClient = client.requireDependency<QueryClient>('queryClient');
+
+    async function invalidateCareerStepList() {
+      await queryClient.invalidateQueries({
+        queryKey: careerStepListQueryKeyRoot,
+      });
+    }
+
+    return queryCollectionOptions({
       id: 'career-steps',
-      queryKey: ['career-steps'],
-      queryClient: client.requireDependency<QueryClient>('queryClient'),
-      queryFn: async () => {
-        const steps = await listCareerSteps();
-        return steps.map(toCareerStep);
-      },
+      queryKey: ['career-steps', 'collection'],
+      queryClient,
+      staleTime: Number.POSITIVE_INFINITY,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      queryFn: async () => [] as CareerStep[],
       getKey: (item) => item.id,
       onInsert: async ({ transaction }) => {
         const { modified } = transaction.mutations[0];
@@ -34,6 +38,7 @@ export const careerStepCollection = collectionOptions(
             ...careerStepToFormValues(modified),
           },
         });
+        await invalidateCareerStepList();
       },
       onUpdate: async ({ transaction }) => {
         const { original, modified } = transaction.mutations[0];
@@ -43,16 +48,27 @@ export const careerStepCollection = collectionOptions(
             ...careerStepToFormValues(modified),
           },
         });
+        await invalidateCareerStepList();
       },
       onDelete: async ({ transaction }) => {
         const { original } = transaction.mutations[0];
         await deleteCareerStep({ data: { id: original.id } });
+        await invalidateCareerStepList();
       },
-    }),
+    });
+  },
 );
 
 export function useCareerStepCollection() {
   return useDbClient().collection(careerStepCollection);
+}
+
+export function ensureCareerStepInCollection(
+  collection: ReturnType<typeof useCareerStepCollection>,
+  step: CareerStep,
+) {
+  if (collection.get(step.id)) return;
+  collection.utils.writeUpsert(step);
 }
 
 export async function persistCareerStepMutation(tx: {

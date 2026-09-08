@@ -13,18 +13,13 @@ import {
   DialogTrigger,
 } from '@/common/ui/dialog';
 import {
+  ensureCareerStepInCollection,
   persistCareerStepMutation,
   useCareerStepCollection,
 } from '../collection';
+import type { CareerStep } from '../schema';
 
-export function DeleteCareerStepDialog({
-  step,
-}: {
-  step: {
-    id: string;
-    position: string;
-  };
-}) {
+export function DeleteCareerStepDialog({ step }: { step: CareerStep }) {
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -35,6 +30,7 @@ export function DeleteCareerStepDialog({
     setDeleteError(null);
 
     try {
+      ensureCareerStepInCollection(collection, step);
       const tx = collection.delete(step.id);
       await persistCareerStepMutation(tx);
       toast.success(`Career step “${step.position}” was deleted.`);

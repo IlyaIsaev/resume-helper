@@ -331,3 +331,65 @@ test('sorts career steps by start date', async ({ page }) => {
   await expect(cards.nth(0)).toContainText('Product Designer');
   await expect(cards.nth(1)).toContainText('Senior Engineer');
 });
+
+async function expectCardsDoNotOverlapAddButton(page: Page) {
+  const addButton = page.getByRole('button', { name: 'Add career step' });
+  await expect(addButton).toBeVisible();
+  await expect(addButton).toBeInViewport();
+
+  const addBox = await addButton.boundingBox();
+  expect(addBox).toBeTruthy();
+  if (!addBox) return;
+
+  const topLabel = await page.evaluate(
+    ({ x, y }) => {
+      const node = document.elementFromPoint(x, y);
+      return (
+        node?.closest('button')?.textContent?.trim() ??
+        node?.textContent?.trim() ??
+        ''
+      );
+    },
+    { x: addBox.x + addBox.width / 2, y: addBox.y + addBox.height / 2 },
+  );
+
+  expect(topLabel).toContain('Add career step');
+}
+
+test('virtual list shows at most 10 career steps and stays above add', async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await signUpAsDemoUser(page);
+
+  for (let index = 1; index <= 11; index += 1) {
+    await addCareerStep(page, {
+      position: `Role ${index}`,
+      description: `Did work ${index}`,
+      technologies: 'TypeScript',
+    });
+  }
+
+  const list = page.getByTestId('career-step-list');
+  await expect(list).toBeVisible();
+  await expect(list).toHaveAttribute('data-loaded-count', '11');
+
+  const visibleCards = page.getByTestId('career-step-card');
+  await expect.poll(async () => visibleCards.count()).toBeLessThanOrEqual(10);
+  await expect.poll(async () => visibleCards.count()).toBeGreaterThan(0);
+  await expectCardsDoNotOverlapAddButton(page);
+
+  await expect
+    .poll(async () =>
+      list.evaluate((element) => element.scrollHeight - element.clientHeight),
+    )
+    .toBeGreaterThan(0);
+
+  await list.evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+
+  await expect(visibleCards.getByText('Role 1', { exact: true })).toBeVisible();
+  await expect.poll(async () => visibleCards.count()).toBeLessThanOrEqual(10);
+  await expectCardsDoNotOverlapAddButton(page);
+});

@@ -9,6 +9,8 @@ export {
   listCareerSteps,
   updateCareerStep,
 } from './functions';
+export { careerStepListInfiniteQueryOptions } from './list-infinite-query';
+export { defaultCareerStepSort } from './list-query';
 export type { CareerStep } from './schema';
 export { AddCareerStepDialog } from './ui/add-career-step-dialog';
 export { CareerStepList } from './ui/career-step-list';

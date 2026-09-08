@@ -11,6 +11,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from '@/common/ui/field';
 import { Skeleton } from '@/common/ui/skeleton';
 import {
+  ensureCareerStepInCollection,
   persistCareerStepMutation,
   useCareerStepCollection,
 } from '../collection';
@@ -67,6 +68,7 @@ export function EditCareerStepDialog({
         onSubmit={async (value) => {
           const previousPosition = step.position;
           try {
+            ensureCareerStepInCollection(collection, step);
             const tx = collection.update(step.id, (draft) => {
               const next = careerStepFromFormValues(
                 step.id,

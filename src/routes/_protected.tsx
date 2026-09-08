@@ -35,9 +35,11 @@ function ProtectedLayout() {
   }
 
   return (
-    <>
+    <div className="flex min-h-0 flex-1 flex-col">
       <SiteHeader user={user} onSignOut={signOut} />
-      <Outlet />
-    </>
+      <div className="flex min-h-0 flex-1 flex-col">
+        <Outlet />
+      </div>
+    </div>
   );
 }

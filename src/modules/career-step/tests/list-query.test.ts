@@ -1,86 +1,15 @@
+import * as v from 'valibot';
 import { expect, test } from 'vitest';
 import {
-  careerStepMatchesQuery,
+  CAREER_STEP_LIST_VISIBLE_LIMIT,
+  CAREER_STEP_PAGE_SIZE,
+  careerStepListInputSchema,
+  careerStepListRangeExtractor,
+  careerStepSearchNeedle,
   defaultCareerStepSort,
-  filterAndSortCareerSteps,
   isCareerStepSort,
-  sortCareerSteps,
+  matchesPresentLabel,
 } from '../list-query';
-import type { CareerStep } from '../schema';
-
-function step(
-  overrides: Partial<CareerStep> & Pick<CareerStep, 'id'>,
-): CareerStep {
-  return {
-    position: 'Engineer',
-    startedOn: '2020-01-15',
-    endedOn: '2024-03-01',
-    description: 'Built the billing platform',
-    technologies: 'TypeScript, PostgreSQL',
-    createdAt: '2026-01-01T00:00:00.000Z',
-    ...overrides,
-  };
-}
-
-const designer = step({
-  id: 'designer',
-  position: 'Product Designer',
-  startedOn: '2018-06-01',
-  endedOn: null,
-  description: 'Designed the mobile app',
-  technologies: 'Figma',
-  createdAt: '2026-01-02T00:00:00.000Z',
-});
-
-const engineer = step({
-  id: 'engineer',
-  position: 'Senior Engineer',
-  startedOn: '2022-09-08',
-  endedOn: '2024-03-01',
-  description: 'Built the billing platform',
-  technologies: 'TypeScript, PostgreSQL',
-  createdAt: '2026-01-03T00:00:00.000Z',
-});
-
-const intern = step({
-  id: 'intern',
-  position: 'Intern',
-  startedOn: '2022-09-08',
-  endedOn: '2023-01-01',
-  description: 'Wrote internal docs',
-  technologies: 'Markdown',
-  createdAt: '2026-01-04T00:00:00.000Z',
-});
-
-test('empty search matches every step', () => {
-  expect(careerStepMatchesQuery(engineer, '')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, '   ')).toBe(true);
-});
-
-test('matches position, description, and technologies', () => {
-  expect(careerStepMatchesQuery(engineer, 'senior')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, 'billing')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, 'postgresql')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, 'figma')).toBe(false);
-});
-
-test('matches ISO dates, Present, and formatted date text', () => {
-  expect(careerStepMatchesQuery(engineer, '2022-09-08')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, '2024-03-01')).toBe(true);
-  expect(careerStepMatchesQuery(designer, 'present')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, 'present')).toBe(false);
-  expect(careerStepMatchesQuery(designer, '2018')).toBe(true);
-});
-
-test('matches id and createdAt', () => {
-  expect(careerStepMatchesQuery(engineer, 'engineer')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, '2026-01-03')).toBe(true);
-  expect(careerStepMatchesQuery(engineer, designer.id)).toBe(false);
-});
-
-test('is case-insensitive and trims the query', () => {
-  expect(careerStepMatchesQuery(engineer, '  SENIOR ENGINEER  ')).toBe(true);
-});
 
 test('defaults to newest start date', () => {
   expect(defaultCareerStepSort).toBe('startedOn-desc');
@@ -90,28 +19,67 @@ test('defaults to newest start date', () => {
   expect(isCareerStepSort('company-asc')).toBe(false);
 });
 
-test('sorts by start date newest first, then recently created', () => {
-  expect(
-    sortCareerSteps([designer, intern, engineer], 'startedOn-desc').map(
-      (item) => item.id,
-    ),
-  ).toEqual(['intern', 'engineer', 'designer']);
+test('trims and lowercases the search needle', () => {
+  expect(careerStepSearchNeedle('  SENIOR ENGINEER  ')).toBe('senior engineer');
+  expect(careerStepSearchNeedle('   ')).toBe('');
 });
 
-test('sorts by start date oldest first', () => {
-  expect(
-    sortCareerSteps([intern, engineer, designer], 'startedOn-asc').map(
-      (item) => item.id,
-    ),
-  ).toEqual(['designer', 'intern', 'engineer']);
+test('matches Present for ongoing roles', () => {
+  expect(matchesPresentLabel('present')).toBe(true);
+  expect(matchesPresentLabel('pre')).toBe(true);
+  expect(matchesPresentLabel('SENT')).toBe(false);
+  expect(matchesPresentLabel('')).toBe(false);
+  expect(matchesPresentLabel('absent')).toBe(false);
 });
 
-test('filters then sorts the visible list', () => {
+test('page size is 20 and larger limits are clamped', () => {
+  expect(CAREER_STEP_PAGE_SIZE).toBe(20);
+
+  const parsed = v.parse(careerStepListInputSchema, { limit: 50 });
+  expect(parsed.limit).toBe(20);
+
+  const defaults = v.parse(careerStepListInputSchema, {});
+  expect(defaults.query).toBe('');
+  expect(defaults.sort).toBe('startedOn-desc');
+  expect(defaults.limit).toBe(20);
+  expect(defaults.cursor).toBeUndefined();
+});
+
+test('range extractor never returns more than 10 indexes', () => {
+  expect(CAREER_STEP_LIST_VISIBLE_LIMIT).toBe(10);
   expect(
-    filterAndSortCareerSteps(
-      [designer, intern, engineer],
-      '2022-09-08',
-      'startedOn-desc',
-    ).map((item) => item.id),
-  ).toEqual(['intern', 'engineer']);
+    careerStepListRangeExtractor({
+      startIndex: 0,
+      endIndex: 20,
+      overscan: 0,
+      count: 50,
+    }),
+  ).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  expect(
+    careerStepListRangeExtractor({
+      startIndex: 8,
+      endIndex: 25,
+      overscan: 0,
+      count: 30,
+    }),
+  ).toEqual([8, 9, 10, 11, 12, 13, 14, 15, 16, 17]);
+});
+
+test('range extractor stays within the loaded count', () => {
+  expect(
+    careerStepListRangeExtractor({
+      startIndex: 0,
+      endIndex: 9,
+      overscan: 0,
+      count: 3,
+    }),
+  ).toEqual([0, 1, 2]);
+  expect(
+    careerStepListRangeExtractor({
+      startIndex: 0,
+      endIndex: 9,
+      overscan: 0,
+      count: 0,
+    }),
+  ).toEqual([]);
 });

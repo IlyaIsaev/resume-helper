@@ -1,5 +1,5 @@
-import { formatCareerDateRange } from './dates';
-import type { CareerStep } from './schema';
+import type { Range } from '@tanstack/react-virtual';
+import * as v from 'valibot';
 
 export const careerStepSortOptions = [
   { value: 'startedOn-desc', label: 'Start date (newest)' },
@@ -10,76 +10,84 @@ export type CareerStepSort = (typeof careerStepSortOptions)[number]['value'];
 
 export const defaultCareerStepSort: CareerStepSort = 'startedOn-desc';
 
+export const CAREER_STEP_PAGE_SIZE = 20;
+export const CAREER_STEP_LIST_VISIBLE_LIMIT = 10;
+export const CAREER_STEP_LIST_ESTIMATE_SIZE = 220;
+export const CAREER_STEP_LIST_GAP = 16;
+export const CAREER_STEP_LIST_MAX_HEIGHT =
+  CAREER_STEP_LIST_VISIBLE_LIMIT * CAREER_STEP_LIST_ESTIMATE_SIZE +
+  (CAREER_STEP_LIST_VISIBLE_LIMIT - 1) * CAREER_STEP_LIST_GAP;
+
+export const careerStepListQueryKeyRoot = ['career-steps', 'list'] as const;
+
+export function careerStepListInfiniteQueryKey(
+  query: string,
+  sort: CareerStepSort,
+) {
+  return [...careerStepListQueryKeyRoot, query, sort] as const;
+}
+
 export function isCareerStepSort(value: string): value is CareerStepSort {
   return careerStepSortOptions.some((option) => option.value === value);
 }
 
-function careerStepSearchHaystack(step: CareerStep): string {
-  return [
-    step.id,
-    step.position,
-    step.startedOn,
-    step.endedOn ?? '',
-    step.description,
-    step.technologies,
-    step.createdAt,
-    formatCareerDateRange(step.startedOn, step.endedOn),
-  ]
-    .join('\n')
-    .toLowerCase();
+export function careerStepSearchNeedle(query: string): string {
+  return query.trim().toLowerCase();
 }
 
-export function careerStepMatchesQuery(
-  step: CareerStep,
-  query: string,
-): boolean {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return true;
-
-  return careerStepSearchHaystack(step).includes(needle);
+export function matchesPresentLabel(needle: string): boolean {
+  return needle.length > 0 && 'present'.includes(needle);
 }
 
-function compareByStartDate(
-  a: CareerStep,
-  b: CareerStep,
-  direction: 'asc' | 'desc',
-) {
-  const started = a.startedOn.localeCompare(b.startedOn);
-  if (started !== 0) return direction === 'asc' ? started : -started;
+export const careerStepListCursorSchema = v.object({
+  startedOn: v.pipe(v.string(), v.isoDate()),
+  createdAt: v.pipe(v.string(), v.isoTimestamp()),
+  id: v.pipe(v.string(), v.minLength(1, 'Id is required')),
+});
 
-  const created = b.createdAt.localeCompare(a.createdAt);
-  if (created !== 0) return created;
+export type CareerStepListCursor = v.InferOutput<
+  typeof careerStepListCursorSchema
+>;
 
-  return a.id.localeCompare(b.id);
-}
+const careerStepSortSchema = v.picklist([
+  careerStepSortOptions[0].value,
+  careerStepSortOptions[1].value,
+]);
 
-function compareCareerSteps(
-  a: CareerStep,
-  b: CareerStep,
-  sort: CareerStepSort,
-) {
-  switch (sort) {
-    case 'startedOn-asc':
-      return compareByStartDate(a, b, 'asc');
-    case 'startedOn-desc':
-      return compareByStartDate(a, b, 'desc');
-  }
-}
+export const careerStepListInputSchema = v.object({
+  query: v.optional(v.string(), ''),
+  sort: v.optional(careerStepSortSchema, defaultCareerStepSort),
+  cursor: v.optional(v.nullable(careerStepListCursorSchema)),
+  limit: v.optional(
+    v.pipe(
+      v.number(),
+      v.integer(),
+      v.minValue(1),
+      v.transform((value) => Math.min(value, CAREER_STEP_PAGE_SIZE)),
+    ),
+    CAREER_STEP_PAGE_SIZE,
+  ),
+});
 
-export function sortCareerSteps(
-  steps: readonly CareerStep[],
-  sort: CareerStepSort,
-): CareerStep[] {
-  return [...steps].sort((a, b) => compareCareerSteps(a, b, sort));
-}
+export type CareerStepListInput = v.InferOutput<
+  typeof careerStepListInputSchema
+>;
 
-export function filterAndSortCareerSteps(
-  steps: readonly CareerStep[],
-  query: string,
-  sort: CareerStepSort,
-): CareerStep[] {
-  return sortCareerSteps(
-    steps.filter((step) => careerStepMatchesQuery(step, query)),
-    sort,
+export function careerStepListRangeExtractor(range: Range): number[] {
+  if (range.count <= 0) return [];
+
+  const start = Math.min(Math.max(range.startIndex, 0), range.count - 1);
+  const end = Math.min(
+    range.endIndex,
+    start + CAREER_STEP_LIST_VISIBLE_LIMIT - 1,
+    range.count - 1,
   );
+
+  if (end < start) return [];
+
+  const indexes: number[] = [];
+  for (let index = start; index <= end; index += 1) {
+    indexes.push(index);
+  }
+  return indexes;
 }

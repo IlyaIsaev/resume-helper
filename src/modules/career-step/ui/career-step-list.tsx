@@ -1,6 +1,6 @@
-import { useLiveSuspenseQuery } from '@tanstack/react-db';
-import { useWindowVirtualizer } from '@tanstack/react-virtual';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useEffect, useRef, useState } from 'react';
 import { Input } from '@/common/ui/input';
 import { Label } from '@/common/ui/label';
 import {
@@ -10,55 +10,76 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/common/ui/select';
-import { careerStepCollection } from '../collection';
+import { careerStepListInfiniteQueryOptions } from '../list-infinite-query';
 import {
+  CAREER_STEP_LIST_ESTIMATE_SIZE,
+  CAREER_STEP_LIST_GAP,
+  CAREER_STEP_LIST_MAX_HEIGHT,
   type CareerStepSort,
+  careerStepListRangeExtractor,
   careerStepSortOptions,
   defaultCareerStepSort,
-  filterAndSortCareerSteps,
   isCareerStepSort,
 } from '../list-query';
 import { CareerStepCard } from './career-step-card';
 
+const SEARCH_DEBOUNCE_MS = 300;
+
+function useDebouncedValue<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebounced(value), delay);
+    return () => window.clearTimeout(timeoutId);
+  }, [delay, value]);
+
+  return debounced;
+}
+
 export function CareerStepList() {
-  const { data: steps } = useLiveSuspenseQuery({
-    query: (q) =>
-      q
-        .from({ step: careerStepCollection })
-        .orderBy(({ step }) => step.createdAt, 'desc'),
-  });
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CareerStepSort>(defaultCareerStepSort);
-  const items = useMemo(
-    () => filterAndSortCareerSteps(steps, query, sort),
-    [query, sort, steps],
-  );
-  const listRef = useRef<HTMLDivElement>(null);
-  const [scrollMargin, setScrollMargin] = useState(0);
-
-  useLayoutEffect(() => {
-    const nextMargin = listRef.current?.offsetTop ?? 0;
-    setScrollMargin((current) =>
-      current === nextMargin ? current : nextMargin,
-    );
-  });
-
-  const virtualizer = useWindowVirtualizer({
+  const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery(careerStepListInfiniteQueryOptions(debouncedQuery, sort));
+  const items = data?.pages.flatMap((page) => page.items) ?? [];
+  const parentRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
     count: items.length,
-    estimateSize: () => 220,
-    overscan: 5,
-    gap: 16,
-    scrollMargin,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => CAREER_STEP_LIST_ESTIMATE_SIZE,
+    overscan: 0,
+    gap: CAREER_STEP_LIST_GAP,
     getItemKey: (index) => items[index].id,
+    rangeExtractor: careerStepListRangeExtractor,
   });
+  const virtualItems = virtualizer.getVirtualItems();
+  const lastVirtualItem = virtualItems[virtualItems.length - 1];
+
+  useEffect(() => {
+    if (!lastVirtualItem) return;
+    if (
+      lastVirtualItem.index >= items.length - 1 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      void fetchNextPage();
+    }
+  }, [
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    items.length,
+    lastVirtualItem,
+  ]);
 
   const emptyMessage =
-    steps.length === 0
+    debouncedQuery.trim().length === 0
       ? 'No career steps yet.'
       : 'No career steps match your search.';
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <Input
         id="career-step-search"
         type="search"
@@ -98,29 +119,34 @@ export function CareerStepList() {
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       ) : (
         <div
-          ref={listRef}
-          className="relative w-full"
-          style={{ height: virtualizer.getTotalSize() }}
+          ref={parentRef}
+          data-testid="career-step-list"
+          data-loaded-count={items.length}
+          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [overflow-anchor:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ maxHeight: CAREER_STEP_LIST_MAX_HEIGHT }}
         >
-          {virtualizer.getVirtualItems().map((virtualItem) => {
-            const step = items[virtualItem.index];
+          <div
+            className="relative w-full"
+            style={{ height: virtualizer.getTotalSize() }}
+          >
+            {virtualItems.map((virtualItem) => {
+              const step = items[virtualItem.index];
 
-            return (
-              <div
-                key={virtualItem.key}
-                data-index={virtualItem.index}
-                ref={virtualizer.measureElement}
-                className="absolute top-0 left-0 w-full"
-                style={{
-                  transform: `translateY(${
-                    virtualItem.start - virtualizer.options.scrollMargin
-                  }px)`,
-                }}
-              >
-                <CareerStepCard step={step} />
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={virtualItem.key}
+                  data-index={virtualItem.index}
+                  ref={virtualizer.measureElement}
+                  className="absolute top-0 left-0 w-full"
+                  style={{
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <CareerStepCard step={step} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

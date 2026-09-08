@@ -1,11 +1,22 @@
 import { createServerFn, createServerOnlyFn } from '@tanstack/react-start';
 import { getRequestHeaders } from '@tanstack/react-start/server';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, isNull, lt, or, sql } from 'drizzle-orm';
 import * as v from 'valibot';
 import { getAuth } from '@/modules/auth/index.server';
 import { getDb } from '~/db';
 import { careerStep } from '~/db/schema';
-import { deleteCareerStepSchema, updateCareerStepSchema } from './schema';
+import {
+  type CareerStepListCursor,
+  type CareerStepSort,
+  careerStepListInputSchema,
+  careerStepSearchNeedle,
+  matchesPresentLabel,
+} from './list-query';
+import {
+  deleteCareerStepSchema,
+  toCareerStep,
+  updateCareerStepSchema,
+} from './schema';
 
 const requireUser = createServerOnlyFn(async () => {
   const headers = getRequestHeaders();
@@ -18,26 +29,119 @@ const requireUser = createServerOnlyFn(async () => {
   return session.user;
 });
 
-export const listCareerSteps = createServerFn({ method: 'GET' }).handler(
-  async () => {
+const careerStepListSelect = {
+  id: careerStep.id,
+  position: careerStep.position,
+  startedOn: careerStep.startedOn,
+  endedOn: careerStep.endedOn,
+  description: careerStep.description,
+  technologies: careerStep.technologies,
+  createdAt: careerStep.createdAt,
+};
+
+function careerStepSearchCondition(needle: string) {
+  const fieldMatch = or(
+    sql`instr(lower(${careerStep.position}), ${needle}) > 0`,
+    sql`instr(lower(${careerStep.description}), ${needle}) > 0`,
+    sql`instr(lower(${careerStep.technologies}), ${needle}) > 0`,
+    sql`instr(lower(${careerStep.startedOn}), ${needle}) > 0`,
+    sql`instr(lower(coalesce(${careerStep.endedOn}, '')), ${needle}) > 0`,
+    sql`instr(lower(${careerStep.id}), ${needle}) > 0`,
+  );
+
+  if (matchesPresentLabel(needle)) {
+    return or(fieldMatch, isNull(careerStep.endedOn));
+  }
+
+  return fieldMatch;
+}
+
+function careerStepCursorCondition(
+  sort: CareerStepSort,
+  cursor: CareerStepListCursor,
+) {
+  const createdAt = new Date(cursor.createdAt);
+  const startedOnCmp =
+    sort === 'startedOn-asc'
+      ? gt(careerStep.startedOn, cursor.startedOn)
+      : lt(careerStep.startedOn, cursor.startedOn);
+
+  return or(
+    startedOnCmp,
+    and(
+      eq(careerStep.startedOn, cursor.startedOn),
+      lt(careerStep.createdAt, createdAt),
+    ),
+    and(
+      eq(careerStep.startedOn, cursor.startedOn),
+      eq(careerStep.createdAt, createdAt),
+      gt(careerStep.id, cursor.id),
+    ),
+  );
+}
+
+function toListCursor(step: {
+  startedOn: string;
+  createdAt: Date | string;
+  id: string;
+}): CareerStepListCursor {
+  return {
+    startedOn: step.startedOn,
+    createdAt:
+      step.createdAt instanceof Date
+        ? step.createdAt.toISOString()
+        : step.createdAt,
+    id: step.id,
+  };
+}
+
+export const listCareerSteps = createServerFn({ method: 'GET' })
+  .validator((data) => v.parse(careerStepListInputSchema, data ?? {}))
+  .handler(async ({ data }) => {
     const user = await requireUser();
     const db = getDb();
+    const needle = careerStepSearchNeedle(data.query);
+    const filters = [eq(careerStep.userId, user.id)];
 
-    return db
-      .select({
-        id: careerStep.id,
-        position: careerStep.position,
-        startedOn: careerStep.startedOn,
-        endedOn: careerStep.endedOn,
-        description: careerStep.description,
-        technologies: careerStep.technologies,
-        createdAt: careerStep.createdAt,
-      })
+    if (needle) {
+      const search = careerStepSearchCondition(needle);
+      if (search) filters.push(search);
+    }
+
+    if (data.cursor) {
+      const cursor = careerStepCursorCondition(data.sort, data.cursor);
+      if (cursor) filters.push(cursor);
+    }
+
+    const orderBy =
+      data.sort === 'startedOn-asc'
+        ? [
+            asc(careerStep.startedOn),
+            desc(careerStep.createdAt),
+            asc(careerStep.id),
+          ]
+        : [
+            desc(careerStep.startedOn),
+            desc(careerStep.createdAt),
+            asc(careerStep.id),
+          ];
+
+    const rows = await db
+      .select(careerStepListSelect)
       .from(careerStep)
-      .where(eq(careerStep.userId, user.id))
-      .orderBy(desc(careerStep.createdAt));
-  },
-);
+      .where(and(...filters))
+      .orderBy(...orderBy)
+      .limit(data.limit + 1);
+
+    const hasMore = rows.length > data.limit;
+    const page = hasMore ? rows.slice(0, data.limit) : rows;
+    const last = page[page.length - 1];
+
+    return {
+      items: page,
+      nextCursor: hasMore && last ? toListCursor(last) : null,
+    };
+  });
 
 export const getCareerStep = createServerFn({ method: 'GET' })
   .validator((data) =>
@@ -61,7 +165,7 @@ export const getCareerStep = createServerFn({ method: 'GET' })
       .where(and(eq(careerStep.id, id), eq(careerStep.userId, user.id)))
       .limit(1);
 
-    return step ?? null;
+    return step ? toCareerStep(step) : null;
   });
 
 export const createCareerStep = createServerFn({ method: 'POST' })

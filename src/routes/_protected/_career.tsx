@@ -1,26 +1,26 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
-import { Suspense } from 'react';
 import {
   AddCareerStepDialog,
   CareerStepList,
-  careerStepCollection,
+  careerStepListInfiniteQueryOptions,
+  defaultCareerStepSort,
 } from '@/modules/career-step';
 
 export const Route = createFileRoute('/_protected/_career')({
   loader: ({ context }) =>
-    context.dbClient.collection(careerStepCollection).preload(),
+    context.queryClient.ensureInfiniteQueryData(
+      careerStepListInfiniteQueryOptions('', defaultCareerStepSort),
+    ),
   component: CareerLayout,
 });
 
 function CareerLayout() {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 pt-10 pb-4">
-      <section className="flex flex-1 flex-col gap-4 pb-4">
-        <Suspense fallback={null}>
-          <CareerStepList />
-        </Suspense>
+    <div className="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col px-4 pt-10 pb-4">
+      <section className="flex min-h-0 flex-1 flex-col gap-4 pb-4">
+        <CareerStepList />
       </section>
-      <div className="sticky bottom-4 z-10 mt-auto bg-background pt-4">
+      <div className="relative z-10 shrink-0 bg-background pt-4">
         <AddCareerStepDialog />
       </div>
       <Outlet />
