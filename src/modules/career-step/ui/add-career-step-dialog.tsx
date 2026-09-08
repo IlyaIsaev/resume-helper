@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/common/ui/button';
@@ -10,14 +9,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/common/ui/dialog';
-import { createCareerStep } from '../functions';
-import { emptyCareerStepValues } from '../schema';
+import {
+  persistCareerStepMutation,
+  useCareerStepCollection,
+} from '../collection';
+import { careerStepFromFormValues, emptyCareerStepValues } from '../schema';
 import { CareerStepForm } from './career-step-form';
 
 export function AddCareerStepDialog() {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const router = useRouter();
+  const collection = useCareerStepCollection();
 
   useEffect(() => {
     triggerRef.current?.focus({ preventScroll: true });
@@ -46,8 +48,14 @@ export function AddCareerStepDialog() {
             defaultValues={emptyCareerStepValues}
             onSubmit={async (value) => {
               try {
-                await createCareerStep({ data: value });
-                await router.invalidate();
+                const tx = collection.insert(
+                  careerStepFromFormValues(
+                    crypto.randomUUID(),
+                    value,
+                    new Date().toISOString(),
+                  ),
+                );
+                await persistCareerStepMutation(tx);
                 toast.success(`Career step “${value.position}” was created.`);
               } catch (error) {
                 toast.error(

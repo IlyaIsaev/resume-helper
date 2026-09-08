@@ -1,17 +1,13 @@
-import { createServerFn } from '@tanstack/react-start';
+import { createServerFn, createServerOnlyFn } from '@tanstack/react-start';
 import { getRequestHeaders } from '@tanstack/react-start/server';
 import { and, desc, eq } from 'drizzle-orm';
 import * as v from 'valibot';
-import { getAuth } from '@/modules/auth';
+import { getAuth } from '@/modules/auth/index.server';
 import { getDb } from '~/db';
 import { careerStep } from '~/db/schema';
-import {
-  careerStepSchema,
-  deleteCareerStepSchema,
-  updateCareerStepSchema,
-} from './schema';
+import { deleteCareerStepSchema, updateCareerStepSchema } from './schema';
 
-async function requireUser() {
+const requireUser = createServerOnlyFn(async () => {
   const headers = getRequestHeaders();
   const session = await getAuth().api.getSession({ headers });
 
@@ -20,7 +16,7 @@ async function requireUser() {
   }
 
   return session.user;
-}
+});
 
 export const listCareerSteps = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -69,15 +65,14 @@ export const getCareerStep = createServerFn({ method: 'GET' })
   });
 
 export const createCareerStep = createServerFn({ method: 'POST' })
-  .validator((data) => v.parse(careerStepSchema, data))
+  .validator((data) => v.parse(updateCareerStepSchema, data))
   .handler(async ({ data }) => {
     const user = await requireUser();
     const db = getDb();
-    const id = crypto.randomUUID();
     const createdAt = new Date();
 
     await db.insert(careerStep).values({
-      id,
+      id: data.id,
       userId: user.id,
       position: data.position,
       startedOn: data.dates.from,
@@ -88,7 +83,7 @@ export const createCareerStep = createServerFn({ method: 'POST' })
     });
 
     return {
-      id,
+      id: data.id,
       position: data.position,
       startedOn: data.dates.from,
       endedOn: data.dates.to || null,

@@ -42,6 +42,55 @@ export const careerStepSchema = v.object({
 
 export type CareerStepValues = v.InferOutput<typeof careerStepSchema>;
 
+export type CareerStep = {
+  id: string;
+  position: string;
+  startedOn: string;
+  endedOn: string | null;
+  description: string;
+  technologies: string;
+  createdAt: string;
+};
+
+export function toCareerStep(step: {
+  id: string;
+  position: string;
+  startedOn: string;
+  endedOn: string | null;
+  description: string;
+  technologies: string;
+  createdAt: Date | string;
+}): CareerStep {
+  return {
+    id: step.id,
+    position: step.position,
+    startedOn: step.startedOn,
+    endedOn: step.endedOn,
+    description: step.description,
+    technologies: step.technologies,
+    createdAt:
+      step.createdAt instanceof Date
+        ? step.createdAt.toISOString()
+        : step.createdAt,
+  };
+}
+
+export function careerStepFromFormValues(
+  id: string,
+  value: CareerStepValues,
+  createdAt: string,
+): CareerStep {
+  return {
+    id,
+    position: value.position,
+    startedOn: value.dates.from,
+    endedOn: value.dates.to || null,
+    description: value.description,
+    technologies: value.technologies,
+    createdAt,
+  };
+}
+
 export const updateCareerStepSchema = v.intersect([
   v.object({
     id: v.pipe(v.string(), v.minLength(1, 'Id is required')),

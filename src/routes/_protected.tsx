@@ -23,12 +23,13 @@ export const Route = createFileRoute('/_protected')({
 });
 
 function ProtectedLayout() {
-  const { user } = Route.useRouteContext();
+  const { user, queryClient } = Route.useRouteContext();
   const navigate = useNavigate();
   const router = useRouter();
 
   async function signOut() {
     await authClient.signOut();
+    queryClient.clear();
     await router.invalidate();
     await navigate({ to: '/sign-in' });
   }

@@ -35,6 +35,7 @@ export function ProfileSettings({ email }: { email: string }) {
     }
 
     await router.invalidate();
+    router.options.context.queryClient.clear();
     await navigate({ to: '/sign-in' });
   }
 

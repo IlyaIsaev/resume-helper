@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 import {
@@ -11,18 +10,16 @@ import {
 } from '@/common/ui/dialog';
 import { Field, FieldGroup, FieldLabel } from '@/common/ui/field';
 import { Skeleton } from '@/common/ui/skeleton';
-import { updateCareerStep } from '../functions';
-import { careerStepToFormValues } from '../schema';
+import {
+  persistCareerStepMutation,
+  useCareerStepCollection,
+} from '../collection';
+import {
+  type CareerStep,
+  careerStepFromFormValues,
+  careerStepToFormValues,
+} from '../schema';
 import { CareerStepForm } from './career-step-form';
-
-type CareerStep = {
-  id: string;
-  position: string;
-  startedOn: string;
-  endedOn: string | null;
-  description: string;
-  technologies: string;
-};
 
 function EditCareerStepDialogFrame({
   onClose,
@@ -60,7 +57,7 @@ export function EditCareerStepDialog({
   step: CareerStep;
   onClose: () => void;
 }) {
-  const router = useRouter();
+  const collection = useCareerStepCollection();
 
   return (
     <EditCareerStepDialogFrame onClose={onClose}>
@@ -70,8 +67,19 @@ export function EditCareerStepDialog({
         onSubmit={async (value) => {
           const previousPosition = step.position;
           try {
-            await updateCareerStep({ data: { id: step.id, ...value } });
-            await router.invalidate();
+            const tx = collection.update(step.id, (draft) => {
+              const next = careerStepFromFormValues(
+                step.id,
+                value,
+                draft.createdAt,
+              );
+              draft.position = next.position;
+              draft.startedOn = next.startedOn;
+              draft.endedOn = next.endedOn;
+              draft.description = next.description;
+              draft.technologies = next.technologies;
+            });
+            await persistCareerStepMutation(tx);
             toast.success(`Career step “${previousPosition}” was updated.`);
           } catch (error) {
             toast.error(`Could not update career step “${previousPosition}”.`);

@@ -1,4 +1,3 @@
-import { useRouter } from '@tanstack/react-router';
 import { CircleAlert, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,7 +12,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/common/ui/dialog';
-import { deleteCareerStep } from '../functions';
+import {
+  persistCareerStepMutation,
+  useCareerStepCollection,
+} from '../collection';
 
 export function DeleteCareerStepDialog({
   step,
@@ -26,15 +28,15 @@ export function DeleteCareerStepDialog({
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const router = useRouter();
+  const collection = useCareerStepCollection();
 
   async function handleDelete() {
     setIsDeleting(true);
     setDeleteError(null);
 
     try {
-      await deleteCareerStep({ data: { id: step.id } });
-      await router.invalidate();
+      const tx = collection.delete(step.id);
+      await persistCareerStepMutation(tx);
       toast.success(`Career step “${step.position}” was deleted.`);
       setOpen(false);
     } catch (error) {

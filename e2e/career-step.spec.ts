@@ -15,25 +15,40 @@ async function signUpAsDemoUser(page: Page) {
   ).toBeVisible();
 }
 
-async function addSeniorEngineerStep(page: Page) {
+async function addCareerStep(
+  page: Page,
+  step: {
+    position: string;
+    description: string;
+    technologies: string;
+  },
+) {
   await page.getByRole('button', { name: 'Add career step' }).click();
 
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
 
-  await dialog.getByLabel('Position').fill('Senior Engineer');
+  await dialog.getByLabel('Position').fill(step.position);
   await dialog.getByLabel('Dates').click();
   await page.getByRole('button', { name: /^Today,/ }).click();
   await page.keyboard.press('Escape');
   await expect(dialog.getByLabel('Dates')).toContainText('Present');
-  await dialog.getByLabel('Description').fill('Built the billing platform');
-  await dialog.getByLabel('Technologies').fill('TypeScript, PostgreSQL');
+  await dialog.getByLabel('Description').fill(step.description);
+  await dialog.getByLabel('Technologies').fill(step.technologies);
   await dialog.getByRole('button', { name: 'Save career step' }).click();
 
   await expect(dialog).toBeHidden();
   await expect(
-    page.getByText('Career step “Senior Engineer” was created.'),
+    page.getByText(`Career step “${step.position}” was created.`),
   ).toBeVisible();
+}
+
+async function addSeniorEngineerStep(page: Page) {
+  await addCareerStep(page, {
+    position: 'Senior Engineer',
+    description: 'Built the billing platform',
+    technologies: 'TypeScript, PostgreSQL',
+  });
 }
 
 test('add career step is focused when the career page opens', async ({
@@ -218,4 +233,68 @@ test('deletes a career step from the card', async ({ page }) => {
   await page.reload();
   await expect(page.getByTestId('career-step-card')).toHaveCount(0);
   await expect(page.getByText('No career steps yet.')).toBeVisible();
+});
+
+test('filters career steps across fields and restores the full list', async ({
+  page,
+}) => {
+  await signUpAsDemoUser(page);
+  await addSeniorEngineerStep(page);
+  await addCareerStep(page, {
+    position: 'Product Designer',
+    description: 'Designed the mobile app',
+    technologies: 'Figma',
+  });
+
+  const search = page.getByRole('searchbox', { name: 'Search career steps' });
+  await expect(page.getByTestId('career-step-card')).toHaveCount(2);
+
+  await search.fill('billing');
+  await expect(page.getByTestId('career-step-card')).toHaveCount(1);
+  await expect(
+    page.getByTestId('career-step-card').getByText('Senior Engineer'),
+  ).toBeVisible();
+
+  await search.fill('figma');
+  await expect(page.getByTestId('career-step-card')).toHaveCount(1);
+  await expect(
+    page.getByTestId('career-step-card').getByText('Product Designer'),
+  ).toBeVisible();
+
+  await search.fill('present');
+  await expect(page.getByTestId('career-step-card')).toHaveCount(2);
+
+  await search.fill('no such career step');
+  await expect(page.getByTestId('career-step-card')).toHaveCount(0);
+  await expect(
+    page.getByText('No career steps match your search.'),
+  ).toBeVisible();
+
+  await search.fill('');
+  await expect(page.getByTestId('career-step-card')).toHaveCount(2);
+});
+
+test('sorts career steps by position', async ({ page }) => {
+  await signUpAsDemoUser(page);
+  await addCareerStep(page, {
+    position: 'Product Designer',
+    description: 'Designed the mobile app',
+    technologies: 'Figma',
+  });
+  await addSeniorEngineerStep(page);
+
+  const cards = page.getByTestId('career-step-card');
+  await expect(cards).toHaveCount(2);
+  await expect(cards.nth(0)).toContainText('Senior Engineer');
+  await expect(cards.nth(1)).toContainText('Product Designer');
+
+  await page.getByRole('combobox', { name: 'Sort career steps' }).click();
+  await page.getByRole('option', { name: 'Position A–Z' }).click();
+  await expect(cards.nth(0)).toContainText('Product Designer');
+  await expect(cards.nth(1)).toContainText('Senior Engineer');
+
+  await page.getByRole('combobox', { name: 'Sort career steps' }).click();
+  await page.getByRole('option', { name: 'Position Z–A' }).click();
+  await expect(cards.nth(0)).toContainText('Senior Engineer');
+  await expect(cards.nth(1)).toContainText('Product Designer');
 });

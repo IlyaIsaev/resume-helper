@@ -1,16 +1,17 @@
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
 } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import type { RouterContext } from '@/common/router-context';
 import { ThemeProvider } from '@/common/theme-provider';
 import { Toaster } from '@/common/ui/sonner';
 import { getSession } from '@/modules/auth';
 import appCss from '~/styles/app.css?url';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
     const session = await getSession();
     return { session };

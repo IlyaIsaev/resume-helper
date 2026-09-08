@@ -1,15 +1,17 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import {
+  careerStepCollection,
   EditCareerStepDialog,
   EditCareerStepDialogSkeleton,
-  getCareerStep,
 } from '@/modules/career-step';
 
 export const Route = createFileRoute(
   '/_protected/_career/career-steps/$stepId/edit',
 )({
-  loader: async ({ params }) => {
-    const step = await getCareerStep({ data: params.stepId });
+  loader: async ({ context, params }) => {
+    const collection = context.dbClient.collection(careerStepCollection);
+    await collection.preload();
+    const step = collection.get(params.stepId);
 
     if (!step) {
       throw redirect({ to: '/' });

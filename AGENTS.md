@@ -45,9 +45,10 @@ e2e/sign-in.spec.ts             # e2e (Playwright)
 
 ## Browser (MCP)
 
-When driving a browser from the agent (UI verification, clicking through the app, inspecting pages), use **Lightpanda MCP** (`lightpanda` namespace). See https://lightpanda.io/docs/usage/mcp.
+When driving a browser from the agent (UI verification, clicking through the app, inspecting pages), pick the browser by environment:
 
-Use Playwright MCP (`playwright` or `plugin-playwright-playwright`, tools such as `browser_navigate` / `browser_snapshot`) only if Lightpanda is not enough (missing capability, failed interaction, or Lightpanda unavailable). Do not start with Playwright MCP.
+- **Cursor Agents in the Cursor IDE**: use the built-in Cursor Agents browser (`cursor-ide-browser` namespace: `browser_navigate`, `browser_snapshot`, `browser_click`, `browser_lock`, etc.). Do **not** use Lightpanda in that environment.
+- **CLI / non-IDE agents** (or environments without the Cursor IDE browser): use **Lightpanda MCP** (`lightpanda` / `user-lightpanda`). See https://lightpanda.io/docs/usage/mcp. Use Playwright MCP (`playwright` or `plugin-playwright-playwright`) only if Lightpanda is not enough (missing capability, failed interaction, or Lightpanda unavailable). Do not start with Playwright MCP.
 
 This does not change e2e tests: keep Playwright (`@playwright/test`) under `e2e/`.
 

@@ -2,7 +2,7 @@ import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { getRequest } from '@tanstack/react-start/server';
 import { betterAuth } from 'better-auth';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
-import { getCloudflareEnv } from '@/common/cloudflare';
+import { getCloudflareEnv } from '@/common/cloudflare.server';
 import { getDb } from '~/db';
 import * as schema from '~/db/schema';
 

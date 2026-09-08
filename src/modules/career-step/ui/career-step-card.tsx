@@ -9,20 +9,10 @@ import {
   CardTitle,
 } from '@/common/ui/card';
 import { formatCareerDateRange } from '../dates';
+import type { CareerStep } from '../schema';
 import { DeleteCareerStepDialog } from './delete-career-step-dialog';
 
-export function CareerStepCard({
-  step,
-}: {
-  step: {
-    id: string;
-    position: string;
-    startedOn: string;
-    endedOn: string | null;
-    description: string;
-    technologies: string;
-  };
-}) {
+export function CareerStepCard({ step }: { step: CareerStep }) {
   return (
     <Card className="relative group" data-testid="career-step-card">
       <div className="absolute top-2 right-2 flex opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
