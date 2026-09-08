@@ -9,10 +9,31 @@ async function signUpAsDemoUser(page: Page) {
   ).toBeEnabled();
   await page.getByRole('button', { name: 'Create account' }).click();
   await expect(page).toHaveURL('/', { timeout: 20000 });
-  await expect(page.getByRole('heading', { name: 'Career' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Add career step' }),
+  ).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Open account menu' }),
   ).toBeVisible();
+}
+
+async function pickCareerStepStartDate(
+  page: Page,
+  startDate: 'today' | 'previous-month-first',
+) {
+  if (startDate === 'today') {
+    await page.getByRole('button', { name: /^Today,/ }).click();
+    return;
+  }
+
+  await page.getByRole('button', { name: 'Go to the Previous Month' }).click();
+  const dataDay = await page.evaluate(() => {
+    const date = new Date();
+    date.setDate(1);
+    date.setMonth(date.getMonth() - 1);
+    return date.toLocaleDateString();
+  });
+  await page.locator(`[data-day="${dataDay}"]`).click();
 }
 
 async function addCareerStep(
@@ -21,6 +42,7 @@ async function addCareerStep(
     position: string;
     description: string;
     technologies: string;
+    startDate?: 'today' | 'previous-month-first';
   },
 ) {
   await page.getByRole('button', { name: 'Add career step' }).click();
@@ -30,7 +52,7 @@ async function addCareerStep(
 
   await dialog.getByLabel('Position').fill(step.position);
   await dialog.getByLabel('Dates').click();
-  await page.getByRole('button', { name: /^Today,/ }).click();
+  await pickCareerStepStartDate(page, step.startDate ?? 'today');
   await page.keyboard.press('Escape');
   await expect(dialog.getByLabel('Dates')).toContainText('Present');
   await dialog.getByLabel('Description').fill(step.description);
@@ -166,7 +188,9 @@ test('opens a prefilled edit dialog from the career step URL', async ({
 
   await page.goto(href);
   await expect(page).toHaveURL(href);
-  await expect(page.getByRole('heading', { name: 'Career' })).toBeVisible();
+  await expect(
+    page.getByRole('searchbox', { name: 'Search career steps' }),
+  ).toBeVisible();
   await expect(
     page.getByTestId('career-step-card').getByText('Senior Engineer'),
   ).toBeVisible();
@@ -274,12 +298,13 @@ test('filters career steps across fields and restores the full list', async ({
   await expect(page.getByTestId('career-step-card')).toHaveCount(2);
 });
 
-test('sorts career steps by position', async ({ page }) => {
+test('sorts career steps by start date', async ({ page }) => {
   await signUpAsDemoUser(page);
   await addCareerStep(page, {
     position: 'Product Designer',
     description: 'Designed the mobile app',
     technologies: 'Figma',
+    startDate: 'previous-month-first',
   });
   await addSeniorEngineerStep(page);
 
@@ -289,12 +314,20 @@ test('sorts career steps by position', async ({ page }) => {
   await expect(cards.nth(1)).toContainText('Product Designer');
 
   await page.getByRole('combobox', { name: 'Sort career steps' }).click();
-  await page.getByRole('option', { name: 'Position A–Z' }).click();
+  await expect(
+    page.getByRole('option', { name: 'Start date (newest)' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('option', { name: 'Start date (oldest)' }),
+  ).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Position A–Z' })).toHaveCount(
+    0,
+  );
+  await expect(page.getByRole('option', { name: 'Position Z–A' })).toHaveCount(
+    0,
+  );
+
+  await page.getByRole('option', { name: 'Start date (oldest)' }).click();
   await expect(cards.nth(0)).toContainText('Product Designer');
   await expect(cards.nth(1)).toContainText('Senior Engineer');
-
-  await page.getByRole('combobox', { name: 'Sort career steps' }).click();
-  await page.getByRole('option', { name: 'Position Z–A' }).click();
-  await expect(cards.nth(0)).toContainText('Senior Engineer');
-  await expect(cards.nth(1)).toContainText('Product Designer');
 });

@@ -85,6 +85,8 @@ test('is case-insensitive and trims the query', () => {
 test('defaults to newest start date', () => {
   expect(defaultCareerStepSort).toBe('startedOn-desc');
   expect(isCareerStepSort('startedOn-desc')).toBe(true);
+  expect(isCareerStepSort('startedOn-asc')).toBe(true);
+  expect(isCareerStepSort('position-asc')).toBe(false);
   expect(isCareerStepSort('company-asc')).toBe(false);
 });
 
@@ -104,26 +106,12 @@ test('sorts by start date oldest first', () => {
   ).toEqual(['designer', 'intern', 'engineer']);
 });
 
-test('sorts by position A–Z and Z–A', () => {
-  expect(
-    sortCareerSteps([intern, engineer, designer], 'position-asc').map(
-      (item) => item.position,
-    ),
-  ).toEqual(['Intern', 'Product Designer', 'Senior Engineer']);
-
-  expect(
-    sortCareerSteps([intern, engineer, designer], 'position-desc').map(
-      (item) => item.position,
-    ),
-  ).toEqual(['Senior Engineer', 'Product Designer', 'Intern']);
-});
-
 test('filters then sorts the visible list', () => {
   expect(
     filterAndSortCareerSteps(
       [designer, intern, engineer],
       '2022-09-08',
-      'position-asc',
+      'startedOn-desc',
     ).map((item) => item.id),
   ).toEqual(['intern', 'engineer']);
 });

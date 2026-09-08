@@ -16,9 +16,6 @@ function CareerLayout() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 pt-10 pb-4">
       <section className="flex flex-1 flex-col gap-4 pb-4">
-        <h1 className="text-xs text-muted-foreground tracking-[1.5px] uppercase font-normal">
-          Career
-        </h1>
         <Suspense fallback={null}>
           <CareerStepList />
         </Suspense>

@@ -4,8 +4,6 @@ import type { CareerStep } from './schema';
 export const careerStepSortOptions = [
   { value: 'startedOn-desc', label: 'Start date (newest)' },
   { value: 'startedOn-asc', label: 'Start date (oldest)' },
-  { value: 'position-asc', label: 'Position A–Z' },
-  { value: 'position-desc', label: 'Position Z–A' },
 ] as const;
 
 export type CareerStepSort = (typeof careerStepSortOptions)[number]['value'];
@@ -55,19 +53,6 @@ function compareByStartDate(
   return a.id.localeCompare(b.id);
 }
 
-function compareByPosition(
-  a: CareerStep,
-  b: CareerStep,
-  direction: 'asc' | 'desc',
-) {
-  const position = a.position.localeCompare(b.position, undefined, {
-    sensitivity: 'base',
-  });
-  if (position !== 0) return direction === 'asc' ? position : -position;
-
-  return compareByStartDate(a, b, 'desc');
-}
-
 function compareCareerSteps(
   a: CareerStep,
   b: CareerStep,
@@ -78,10 +63,6 @@ function compareCareerSteps(
       return compareByStartDate(a, b, 'asc');
     case 'startedOn-desc':
       return compareByStartDate(a, b, 'desc');
-    case 'position-asc':
-      return compareByPosition(a, b, 'asc');
-    case 'position-desc':
-      return compareByPosition(a, b, 'desc');
   }
 }
 
