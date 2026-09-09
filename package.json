@@ -14,8 +14,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "biome check .",
-    "check:write": "biome check --write ."
+    "check": "biome check . && pnpm lint:fsd",
+    "check:write": "biome check --write .",
+    "lint:fsd": "steiger src"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.7.3",
@@ -49,6 +50,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
     "@cloudflare/vite-plugin": "^1.54.5",
+    "@feature-sliced/steiger-plugin": "^0.7.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.5.0",
@@ -58,6 +60,7 @@
     "@vitest/browser-playwright": "^5.0.0",
     "drizzle-kit": "^0.31.10",
     "lefthook": "^2.1.12",
+    "steiger": "^0.6.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",

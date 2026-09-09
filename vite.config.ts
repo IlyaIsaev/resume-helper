@@ -16,6 +16,11 @@ export default defineConfig({
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tanstackStart({
       srcDirectory: 'src',
+      router: {
+        entry: 'app/router.tsx',
+        routesDirectory: 'app/routes',
+        generatedRouteTree: 'app/routeTree.gen.ts',
+      },
     }),
     viteReact(),
   ],

@@ -6,39 +6,39 @@ Use **pnpm** for install, add, remove, and scripts (`pnpm add`, `pnpm install`, 
 
 Do not use npm or yarn (`npm install`, `npx`, `package-lock.json`). Prefer `pnpm exec` / `pnpm dlx` over `npx` when a one-off binary is needed.
 
-## Architecture (FEOD)
+## Architecture (FSD)
 
-The project follows [FEOD](https://fractal-oriented.tech/en/) (Fractal Entity Oriented Design). Levels are `app`, `pages`, `modules`, `common`, and `global`. Import only through a module’s public `index.ts`. Do not deep-import internals (`ui/`, `model/`, `lib/`, a concrete file inside another module). Do not use `export *` in a public API.
+The project follows [Feature-Sliced Design](https://fsd.how/) 2.x. Layers from top to bottom: `app`, `pages`, `widgets`, `entities`, `shared`. Do not add `processes` (deprecated) or empty layers. A module may import only from layers **below** it. Slices on the same layer must not import each other. Import a slice only through its public `index.ts`. Do not deep-import internals (`ui/`, `model/`, `api/`, `lib/`). Do not use `export *` in a public API. Inside a slice, use relative imports; across slices, use `@/` aliases.
 
-| Level | In this repo | May import |
+| Layer | In this repo | May import |
 | --- | --- | --- |
-| `app` | `src/router.tsx`, `src/routeTree.gen.ts` (TanStack entry) | `pages`, `modules`, `common` |
-| `pages` | `src/routes/` (TanStack file routing) | `modules`, `common` |
-| `modules` | `src/modules/<name>/` | `common`, public API of other modules, `@/db` |
-| `common` | `src/common/` | other `common` entities (their public path), external packages |
-| `global` | `src/global/`, `src/styles/app.css` | nothing from FEOD levels |
+| `app` | `src/app/` (router, file routes, theme, styles) | `pages`, `widgets`, `entities`, `shared` |
+| `pages` | `src/pages/<slice>/` | `widgets`, `entities`, `shared` |
+| `widgets` | `src/widgets/<slice>/` | `entities`, `shared` |
+| `entities` | `src/entities/<slice>/` | `shared` |
+| `shared` | `src/shared/` (segments, no slices) | other `shared` segments, external packages |
 
-`common` must not import `modules`. `pages` must not import `app` or other pages (framework `Outlet` is not a page import). `common` has no barrel at `src/common/index.ts` or `src/common/ui/index.ts`; import `@/common/ui/button`, `@/common/cn`, `@/common/layout`.
+`app` and `shared` have segments, not slices; those segments may import each other. `shared/ui` has no barrel: import `@/shared/ui/button`, `@/shared/lib/cn`. Run `pnpm lint:fsd` (Steiger) to check the import rule.
 
 **Exceptions**
 
-- `src/routes` is the FEOD `pages` level. Route files stay thin: `createFileRoute`, loaders, `beforeLoad`, and composition. `src/routes/api/*` are server adapters that use module public APIs.
-- `src/router.tsx` / `src/routeTree.gen.ts` are the FEOD `app` entry (TanStack requires them at `src/`).
-- `src/db` is D1/Drizzle persistence, not a FEOD level. Modules may import `@/db`. No UI or form logic there.
-- The root route may import global CSS (`src/styles/app.css`).
-- Unit tests stay in `tests/` next to the file, not `__tests__/`.
+- `src/app/routes` is TanStack Start file routing. Route files stay thin: `createFileRoute`, loaders, `beforeLoad`, and passing data into page components as props. Pages must not import from `app` (do not call `Route.useLoaderData()` inside `pages/`). `src/app/routes/api/*` are server adapters.
+- `src/app/router.tsx` / `src/app/routeTree.gen.ts` are the TanStack entry (`vite.config.ts` points `router.entry` and `routesDirectory` at `app/`).
+- D1/Drizzle lives in `src/shared/db`. Better Auth’s factory (`getAuth`) is imported from `@/shared/config`. No UI or form logic there.
+- The root route may import app CSS (`src/app/styles/app.css`).
+- Unit tests stay in `tests/` next to the slice, not `__tests__/`.
 
-The career steps page and the profile page share chrome via `src/routes/_protected.tsx` and `src/common/layout`. Do not add a header module.
+Career steps and profile share chrome via `src/widgets/header`, composed from `src/app/routes/_protected.tsx`.
 
 ## Testing
 
 E2E tests live only under `e2e/` (outside `src/`). Use Playwright (`@playwright/test`) with Chromium and `*.spec.ts` names. Run with `pnpm test:e2e`. Do not put Playwright specs in `src/`.
 
-Unit tests live next to the covered file in a `tests/` folder, e.g. `src/modules/auth/schema.ts` → `src/modules/auth/tests/schema.test.ts`. Use Vitest Browser Mode (`pnpm test`). Pattern: `src/**/tests/**/*.test.ts(x)`. Do not use a root `tests/` tree or sibling `src/foo.test.ts` files.
+Unit tests live next to the covered file in a `tests/` folder, e.g. `src/entities/session/model/schema.ts` → `src/entities/session/tests/schema.test.ts`. Use Vitest Browser Mode (`pnpm test`). Pattern: `src/**/tests/**/*.test.ts(x)`. Do not use a root `tests/` tree or sibling `src/foo.test.ts` files.
 
 ```
-src/modules/auth/schema.ts          # entity
-src/modules/auth/tests/schema.test.ts  # unit (Vitest)
+src/entities/session/model/schema.ts          # entity
+src/entities/session/tests/schema.test.ts  # unit (Vitest)
 
 e2e/sign-in.spec.ts             # e2e (Playwright)
 ```
@@ -54,7 +54,7 @@ This does not change e2e tests: keep Playwright (`@playwright/test`) under `e2e/
 
 ## Forms
 
-Use **TanStack Form** (`useForm` from `@tanstack/react-form`) plus **shadcn Field** (`Field`, `FieldLabel`, `FieldError`, `FieldGroup` from `src/common/ui/field.tsx`). Validate with a **Valibot** schema passed into TanStack Form `validators.onChange`. On field blur, call `field.handleBlur()` and `field.validate('change')` so that field can show an error without waiting for a keystroke.
+Use **TanStack Form** (`useForm` from `@tanstack/react-form`) plus **shadcn Field** (`Field`, `FieldLabel`, `FieldError`, `FieldGroup` from `src/shared/ui/field.tsx`). Validate with a **Valibot** schema passed into TanStack Form `validators.onChange`. On field blur, call `field.handleBlur()` and `field.validate('change')` so that field can show an error without waiting for a keystroke.
 
 Do not use React Hook Form, Zod, or a raw `<form>` without TanStack Form + Valibot.
 
@@ -66,7 +66,7 @@ For forms that update an existing entity, also disable submit until any field ha
 
 ## Toasts
 
-After every **create** or **update** server call, show a Sonner toast (`toast` from `sonner`). `<Toaster />` lives in `src/routes/__root.tsx` (`src/common/ui/sonner.tsx`).
+After every **create** or **update** server call, show a Sonner toast (`toast` from `sonner`). `<Toaster />` lives in `src/app/routes/__root.tsx` (`src/shared/ui/sonner.tsx`).
 
 Copy includes the **entity name** and the **operation**:
 
