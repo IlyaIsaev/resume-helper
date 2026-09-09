@@ -17,10 +17,17 @@ async function signUpAsDemoUser(page: Page) {
   ).toBeVisible();
 }
 
+function careerStepDateInput(page: Page, name: 'Start' | 'End') {
+  return page.getByRole('dialog').getByRole('textbox', { name });
+}
+
 async function pickCareerStepStartDate(
   page: Page,
   startDate: 'today' | 'previous-month-first',
 ) {
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Select start date' }).click();
+
   if (startDate === 'today') {
     await page.getByRole('button', { name: /^Today,/ }).click();
     return;
@@ -51,10 +58,12 @@ async function addCareerStep(
   await expect(dialog).toBeVisible();
 
   await dialog.getByLabel('Position').fill(step.position);
-  await dialog.getByLabel('Dates').click();
   await pickCareerStepStartDate(page, step.startDate ?? 'today');
-  await page.keyboard.press('Escape');
-  await expect(dialog.getByLabel('Dates')).toContainText('Present');
+  await expect(careerStepDateInput(page, 'End')).toHaveValue('');
+  await expect(careerStepDateInput(page, 'End')).toHaveAttribute(
+    'placeholder',
+    'Present',
+  );
   await dialog.getByLabel('Description').fill(step.description);
   await dialog.getByLabel('Technologies').fill(step.technologies);
   await dialog.getByRole('button', { name: 'Save career step' }).click();
@@ -103,6 +112,47 @@ test('adds a career step card from the dialog form', async ({ page }) => {
   await expect(page.getByText('TypeScript, PostgreSQL')).toBeVisible();
 });
 
+test('creates a career step from a typed start date and a year dropdown', async ({
+  page,
+}) => {
+  await signUpAsDemoUser(page);
+  await page.getByRole('button', { name: 'Add career step' }).click();
+
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  await dialog.getByLabel('Position').fill('Intern');
+  await careerStepDateInput(page, 'Start').fill('15 Jan 2020');
+  await expect(careerStepDateInput(page, 'Start')).toHaveValue(/15 Jan 2020/);
+
+  await dialog.getByRole('button', { name: 'Select end date' }).click();
+  await page
+    .getByRole('combobox', { name: 'Choose the Year' })
+    .selectOption('2021');
+  await page
+    .getByRole('combobox', { name: 'Choose the Month' })
+    .selectOption('0');
+  const endDay = await page.evaluate(() =>
+    new Date(2021, 0, 20).toLocaleDateString(),
+  );
+  await page.locator(`[data-day="${endDay}"]`).click();
+
+  await dialog.getByLabel('Description').fill('Helped with research');
+  await dialog.getByLabel('Technologies').fill('Figma');
+  await dialog.getByRole('button', { name: 'Save career step' }).click();
+
+  await expect(dialog).toBeHidden();
+  await expect(
+    page.getByText('Career step “Intern” was created.'),
+  ).toBeVisible();
+
+  const card = page.getByTestId('career-step-card');
+  await expect(card.getByText('Intern')).toBeVisible();
+  await expect(card.getByText(/15 Jan 2020/)).toBeVisible();
+  await expect(card.getByText(/20 Jan 2021/)).toBeVisible();
+  await expect(card.getByText(/Present/)).toHaveCount(0);
+});
+
 test('edits a career step from the card', async ({ page }) => {
   await signUpAsDemoUser(page);
   await addSeniorEngineerStep(page);
@@ -121,6 +171,8 @@ test('edits a career step from the card', async ({ page }) => {
   await expect(editDialog.getByLabel('Position')).toHaveValue(
     'Senior Engineer',
   );
+  await expect(careerStepDateInput(page, 'Start')).not.toHaveValue('');
+  await expect(careerStepDateInput(page, 'End')).toHaveValue('');
   await expect(editDialog.getByLabel('Description')).toHaveValue(
     'Built the billing platform',
   );

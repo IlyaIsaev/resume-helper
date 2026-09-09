@@ -103,7 +103,7 @@ export function CareerStepForm({
               field.state.meta.isBlurred && !field.state.meta.isValid;
             return (
               <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Dates</FieldLabel>
+                <FieldLabel>Dates</FieldLabel>
                 <DateRangePicker
                   id={field.name}
                   value={field.state.value}
