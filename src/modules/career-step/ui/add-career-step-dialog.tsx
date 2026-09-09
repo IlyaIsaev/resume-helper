@@ -14,12 +14,14 @@ import {
   useCareerStepCollection,
 } from '../collection';
 import { careerStepFromFormValues, emptyCareerStepValues } from '../schema';
+import { useCreatedCareerStepScroll } from './career-step-created-focus';
 import { CareerStepForm } from './career-step-form';
 
 export function AddCareerStepDialog() {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const collection = useCareerStepCollection();
+  const { requestScrollToCreatedCareerStep } = useCreatedCareerStepScroll();
 
   useEffect(() => {
     triggerRef.current?.focus({ preventScroll: true });
@@ -48,15 +50,13 @@ export function AddCareerStepDialog() {
             defaultValues={emptyCareerStepValues}
             onSubmit={async (value) => {
               try {
+                const id = crypto.randomUUID();
                 const tx = collection.insert(
-                  careerStepFromFormValues(
-                    crypto.randomUUID(),
-                    value,
-                    new Date().toISOString(),
-                  ),
+                  careerStepFromFormValues(id, value, new Date().toISOString()),
                 );
                 await persistCareerStepMutation(tx);
                 toast.success(`Career step “${value.position}” was created.`);
+                requestScrollToCreatedCareerStep(id);
               } catch (error) {
                 toast.error(
                   `Could not create career step “${value.position}”.`,

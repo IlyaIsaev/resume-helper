@@ -409,6 +409,58 @@ async function expectCardsDoNotOverlapAddButton(page: Page) {
   expect(topLabel).toContain('Add career step');
 }
 
+test('scrolls to a created career step that is out of view', async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await signUpAsDemoUser(page);
+
+  for (let index = 1; index <= 11; index += 1) {
+    await addCareerStep(page, {
+      position: `Role ${index}`,
+      description: `Did work ${index}`,
+      technologies: 'TypeScript',
+    });
+    const list = page.getByTestId('career-step-list');
+    const overflows = await list.evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    );
+    if (overflows) break;
+  }
+
+  await expect
+    .poll(async () =>
+      page
+        .getByTestId('career-step-list')
+        .evaluate((element) => element.scrollHeight > element.clientHeight),
+    )
+    .toBe(true);
+
+  await addCareerStep(page, {
+    position: 'Summer Intern',
+    description: 'Helped with research',
+    technologies: 'Figma',
+    startDate: 'previous-month-first',
+  });
+
+  const created = page.getByTestId('career-step-card').filter({
+    has: page.getByText('Summer Intern', { exact: true }),
+  });
+  await expect(created).toBeInViewport();
+
+  const list = page.getByTestId('career-step-list');
+  await expect
+    .poll(async () => {
+      const [listBox, cardBox] = await Promise.all([
+        list.boundingBox(),
+        created.boundingBox(),
+      ]);
+      if (!listBox || !cardBox) return Number.POSITIVE_INFINITY;
+      return Math.abs(cardBox.y - listBox.y);
+    })
+    .toBeLessThan(8);
+});
+
 test('virtual list shows at most 10 career steps and stays above add', async ({
   page,
 }) => {
