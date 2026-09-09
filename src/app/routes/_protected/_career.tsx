@@ -3,7 +3,7 @@ import {
   careerStepListInfiniteQueryOptions,
   defaultCareerStepSort,
 } from '@/entities/career-step';
-import { CareerStepsPage } from '@/pages/career-steps';
+import { CareerStepsPage } from './_career/-ui/career-steps-page';
 
 export const Route = createFileRoute('/_protected/_career')({
   loader: ({ context }) =>

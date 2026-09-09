@@ -6,7 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router';
 import { authClient } from '@/entities/session';
-import { Header } from '@/widgets/header';
+import { Header } from './-header/header';
 
 export const Route = createFileRoute('/_protected')({
   beforeLoad: async ({ context, location }) => {

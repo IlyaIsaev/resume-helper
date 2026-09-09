@@ -8,13 +8,11 @@ Do not use npm or yarn (`npm install`, `npx`, `package-lock.json`). Prefer `pnpm
 
 ## Architecture (FSD)
 
-The project follows [Feature-Sliced Design](https://fsd.how/) 2.x. Layers from top to bottom: `app`, `pages`, `widgets`, `entities`, `shared`. Do not add `processes` (deprecated) or empty layers. A module may import only from layers **below** it. Slices on the same layer must not import each other. Import a slice only through its public `index.ts`. Do not deep-import internals (`ui/`, `model/`, `api/`, `lib/`). Do not use `export *` in a public API. Inside a slice, use relative imports; across slices, use `@/` aliases.
+The project follows [Feature-Sliced Design](https://fsd.how/) 2.x. Layers from top to bottom: `app`, `entities`, `shared`. There is no `pages` or `widgets` layer. Do not add `processes` (deprecated) or empty layers. A module may import only from layers **below** it. Slices on the same layer must not import each other. Import a slice only through its public `index.ts`. Do not deep-import internals (`ui/`, `model/`, `api/`, `lib/`). Do not use `export *` in a public API. Inside a slice, use relative imports; across slices, use `@/` aliases.
 
 | Layer | In this repo | May import |
 | --- | --- | --- |
-| `app` | `src/app/` (router, file routes, theme, styles) | `pages`, `widgets`, `entities`, `shared` |
-| `pages` | `src/pages/<slice>/` | `widgets`, `entities`, `shared` |
-| `widgets` | `src/widgets/<slice>/` | `entities`, `shared` |
+| `app` | `src/app/` (router, file routes, theme, styles) | `entities`, `shared` |
 | `entities` | `src/entities/<slice>/` | `shared` |
 | `shared` | `src/shared/` (segments, no slices) | other `shared` segments, external packages |
 
@@ -22,13 +20,13 @@ The project follows [Feature-Sliced Design](https://fsd.how/) 2.x. Layers from t
 
 **Exceptions**
 
-- `src/app/routes` is TanStack Start file routing. Route files stay thin: `createFileRoute`, loaders, `beforeLoad`, and passing data into page components as props. Pages must not import from `app` (do not call `Route.useLoaderData()` inside `pages/`). `src/app/routes/api/*` are server adapters.
+- `src/app/routes` is TanStack Start file routing. One-off page UI lives in the route file (`createFileRoute`, loaders, `beforeLoad`, and the page component). Extra UI next to a route must live in a file or folder whose name starts with `-` so TanStack does not register it as a route (header: `src/app/routes/-header/`, career-step list and dialogs: `src/app/routes/_protected/_career/-ui/`). Import those modules with relative paths. `src/app/routes/api/*` are server adapters.
 - `src/app/router.tsx` / `src/app/routeTree.gen.ts` are the TanStack entry (`vite.config.ts` points `router.entry` and `routesDirectory` at `app/`).
 - D1/Drizzle lives in `src/shared/db`. Better Auth’s factory (`getAuth`) is imported from `@/shared/config`. No UI or form logic there.
 - The root route may import app CSS (`src/app/styles/app.css`).
 - Unit tests stay in `tests/` next to the slice, not `__tests__/`.
 
-Career steps and profile share chrome via `src/widgets/header`, composed from `src/app/routes/_protected.tsx`.
+Career steps and profile share chrome via `src/app/routes/-header`, composed from `src/app/routes/_protected.tsx`. The career list and its dialogs live in `src/app/routes/_protected/_career/-ui`.
 
 ## Testing
 

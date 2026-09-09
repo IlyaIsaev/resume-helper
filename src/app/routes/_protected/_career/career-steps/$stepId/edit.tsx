@@ -3,7 +3,7 @@ import { getCareerStep } from '@/entities/career-step';
 import {
   EditCareerStepDialog,
   EditCareerStepDialogSkeleton,
-} from '@/pages/career-steps';
+} from '../../-ui/edit-career-step-dialog';
 
 export const Route = createFileRoute(
   '/_protected/_career/career-steps/$stepId/edit',
