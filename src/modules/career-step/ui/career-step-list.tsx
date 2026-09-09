@@ -1,6 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useEffect, useRef, useState } from 'react';
+import { useDebounce } from 'react-use';
 import { Input } from '@/common/ui/input';
 import { Label } from '@/common/ui/label';
 import {
@@ -25,21 +26,18 @@ import { CareerStepCard } from './career-step-card';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-function useDebouncedValue<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(timeoutId);
-  }, [delay, value]);
-
-  return debounced;
-}
-
 export function CareerStepList() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<CareerStepSort>(defaultCareerStepSort);
-  const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+
+  useDebounce(
+    () => {
+      setDebouncedQuery(query);
+    },
+    SEARCH_DEBOUNCE_MS,
+    [query],
+  );
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery(careerStepListInfiniteQueryOptions(debouncedQuery, sort));
   const items = data?.pages.flatMap((page) => page.items) ?? [];
