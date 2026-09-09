@@ -3,7 +3,6 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'react-use';
 import { Input } from '@/common/ui/input';
-import { Label } from '@/common/ui/label';
 import {
   Select,
   SelectContent,
@@ -78,40 +77,38 @@ export function CareerStepList() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <Input
-        id="career-step-search"
-        type="search"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search career steps"
-        aria-label="Search career steps"
-        autoComplete="off"
-      />
-      <div className="flex justify-end">
-        <div className="flex items-center gap-2">
-          <Label htmlFor="career-step-sort">Sort</Label>
-          <Select
-            value={sort}
-            onValueChange={(value) => {
-              if (isCareerStepSort(value)) setSort(value);
-            }}
+      <div className="flex items-center gap-3">
+        <Input
+          id="career-step-search"
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search career steps"
+          aria-label="Search career steps"
+          autoComplete="off"
+          className="min-w-0 flex-1"
+        />
+        <Select
+          value={sort}
+          onValueChange={(value) => {
+            if (isCareerStepSort(value)) setSort(value);
+          }}
+        >
+          <SelectTrigger
+            id="career-step-sort"
+            className="w-fit shrink-0"
+            aria-label="Sort career steps"
           >
-            <SelectTrigger
-              id="career-step-sort"
-              className="w-[13.5rem]"
-              aria-label="Sort career steps"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent position="popper" align="end">
-              {careerStepSortOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper" align="end">
+            {careerStepSortOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>

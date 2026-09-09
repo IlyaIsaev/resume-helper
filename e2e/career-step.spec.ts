@@ -319,12 +319,8 @@ test('sorts career steps by start date', async ({ page }) => {
   await expect(cards.nth(1)).toContainText('Product Designer');
 
   await page.getByRole('combobox', { name: 'Sort career steps' }).click();
-  await expect(
-    page.getByRole('option', { name: 'Start date (newest)' }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('option', { name: 'Start date (oldest)' }),
-  ).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Newest' })).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Oldest' })).toBeVisible();
   await expect(page.getByRole('option', { name: 'Position A–Z' })).toHaveCount(
     0,
   );
@@ -332,7 +328,7 @@ test('sorts career steps by start date', async ({ page }) => {
     0,
   );
 
-  await page.getByRole('option', { name: 'Start date (oldest)' }).click();
+  await page.getByRole('option', { name: 'Oldest' }).click();
   await expect(cards.nth(0)).toContainText('Product Designer');
   await expect(cards.nth(1)).toContainText('Senior Engineer');
 });

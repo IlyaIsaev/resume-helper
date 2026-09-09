@@ -2,8 +2,8 @@ import type { Range } from '@tanstack/react-virtual';
 import * as v from 'valibot';
 
 export const careerStepSortOptions = [
-  { value: 'startedOn-desc', label: 'Start date (newest)' },
-  { value: 'startedOn-asc', label: 'Start date (oldest)' },
+  { value: 'startedOn-desc', label: 'Newest' },
+  { value: 'startedOn-asc', label: 'Oldest' },
 ] as const;
 
 export type CareerStepSort = (typeof careerStepSortOptions)[number]['value'];
