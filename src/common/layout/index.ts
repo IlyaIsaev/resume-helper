@@ -1,1 +1,2 @@
-export { SiteHeader } from './site-header';
+export { ThemeToggle } from './theme-toggle';
+export { UserMenu } from './user-menu';

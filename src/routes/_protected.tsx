@@ -1,11 +1,12 @@
 import {
   createFileRoute,
+  Link,
   Outlet,
   redirect,
   useNavigate,
   useRouter,
 } from '@tanstack/react-router';
-import { SiteHeader } from '@/common/layout';
+import { ThemeToggle, UserMenu } from '@/common/layout';
 import { authClient } from '@/modules/auth';
 
 export const Route = createFileRoute('/_protected')({
@@ -36,7 +37,18 @@ function ProtectedLayout() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <SiteHeader user={user} onSignOut={signOut} />
+      <header className="flex items-center justify-between gap-4 border-b border-border px-4 py-3">
+        <Link
+          to="/"
+          className="text-xs tracking-[2px] uppercase text-muted-foreground"
+        >
+          Resume Helper
+        </Link>
+        <div className="flex items-center gap-2">
+          <UserMenu user={user} onSignOut={signOut} />
+          <ThemeToggle />
+        </div>
+      </header>
       <div className="flex min-h-0 flex-1 flex-col">
         <Outlet />
       </div>
