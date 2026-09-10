@@ -2,7 +2,6 @@ import { wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
 import { Trash2 } from 'lucide-react';
 
-import type { CareerStep } from '@/entities/career-step';
 import {
   Button,
   Dialog,
@@ -23,18 +22,19 @@ import {
 } from '../model/delete-career-step';
 
 type DeleteCareerStepProps = {
-  step: CareerStep;
+  stepId: string;
+  position: string;
 };
 
 export const DeleteCareerStep = reatomComponent(
-  ({ step }: DeleteCareerStepProps) => {
+  ({ stepId, position }: DeleteCareerStepProps) => {
     const handleOpenChange = (shouldOpen: boolean) => {
-      setDeleteCareerStepDialogOpen(step.id, shouldOpen);
+      setDeleteCareerStepDialogOpen(stepId, shouldOpen);
     };
 
     return (
       <Dialog
-        open={isCareerStepDeleteDialogOpen(step.id)}
+        open={isCareerStepDeleteDialogOpen(stepId)}
         onOpenChange={wrap(handleOpenChange)}
       >
         <DialogTrigger asChild>
@@ -51,7 +51,7 @@ export const DeleteCareerStep = reatomComponent(
           <DialogHeader>
             <DialogTitle>Delete career step</DialogTitle>
             <DialogDescription>
-              This permanently deletes “{step.position}”. This cannot be undone.
+              This permanently deletes “{position}”. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

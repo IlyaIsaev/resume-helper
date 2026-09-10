@@ -27,7 +27,7 @@ export const CareerStepCard = reatomComponent(
               <Pencil />
             </a>
           </Button>
-          <DeleteCareerStep step={step} />
+          <DeleteCareerStep stepId={step.id} position={step.position} />
         </div>
         <CardHeader className="py-2.5 px-3.5 pr-20">
           <CardTitle className="text-sm font-medium tracking-tight">
