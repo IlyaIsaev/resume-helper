@@ -4,6 +4,7 @@ import { reatomComponent } from '@reatom/react';
 import {
   type ComponentProps,
   createContext,
+  type FormEvent,
   type ReactNode,
   use,
   useId,
@@ -30,14 +31,16 @@ type FormProps = Omit<ComponentProps<'form'>, 'onSubmit'> & {
 };
 
 function Form({ className, onSubmit, ...props }: FormProps) {
+  const handleSubmit = wrap((event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit();
+  });
+
   return (
     <form
       className={cn('flex flex-col gap-4', className)}
       noValidate
-      onSubmit={wrap((event) => {
-        event.preventDefault();
-        onSubmit();
-      })}
+      onSubmit={handleSubmit}
       {...props}
     />
   );

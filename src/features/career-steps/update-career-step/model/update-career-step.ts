@@ -12,7 +12,7 @@ import {
   careerStep,
   careerStepSchema,
   careerStepToFormValues,
-  emptyCareerStepValues,
+  EMPTY_CAREER_STEP_VALUES,
   refetchCareerSteps,
   updateInCareerSteps,
 } from '@/entities/career-step';
@@ -36,7 +36,7 @@ export const setUpdateCareerStepDialogOpen = action((shouldOpen: boolean) => {
   closeUpdateCareerStepDialog();
 }, 'setUpdateCareerStepDialogOpen');
 
-export const updateCareerStepForm = reatomForm(emptyCareerStepValues, {
+export const updateCareerStepForm = reatomForm(EMPTY_CAREER_STEP_VALUES, {
   name: 'updateCareerStepForm',
   validateOnBlur: true,
   validateOnChange: true,
@@ -91,11 +91,11 @@ export const initUpdateCareerStepForm = action(() => {
   updateCareerStepForm.reset(careerStepToFormValues(step));
 }, 'initUpdateCareerStepForm');
 
-export const updateCareerStepDateParts = reatomCareerDateRange(
-  updateCareerStepForm.fields.dates.from,
-  updateCareerStepForm.fields.dates.to,
-  'updateCareerStepDateParts',
-);
+export const updateCareerStepDateParts = reatomCareerDateRange({
+  fromField: updateCareerStepForm.fields.dates.from,
+  toField: updateCareerStepForm.fields.dates.to,
+  name: 'updateCareerStepDateParts',
+});
 
 export const isUpdateCareerStepSubmitDisabled = computed(() => {
   if (!updateCareerStepForm.submit.ready()) return true;

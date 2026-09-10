@@ -7,8 +7,8 @@ import {
   CAREER_STEP_LIST_ESTIMATE_SIZE,
   CAREER_STEP_LIST_GAP,
   CAREER_STEP_LIST_MAX_HEIGHT,
+  CAREER_STEP_SORT_OPTIONS,
   careerStepListRangeExtractor,
-  careerStepSortOptions,
   careerSteps,
   careerStepsQuery,
   careerStepsSort,
@@ -112,7 +112,7 @@ export const CareerStepList = reatomComponent(() => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent position="popper" align="end">
-            {careerStepSortOptions.map((option) => (
+            {CAREER_STEP_SORT_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>

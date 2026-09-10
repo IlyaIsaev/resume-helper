@@ -8,6 +8,7 @@ import {
   setCookie,
 } from 'hono/cookie';
 import { csrf } from 'hono/csrf';
+import type { CookieOptions } from 'hono/utils/cookie';
 import * as v from 'valibot';
 
 import { createAuth, isTrustedAuthOrigin } from '../auth';
@@ -71,18 +72,20 @@ const createDemoEmail = (): string => {
 const isHttpsRequest = (context: DemoUserContext): boolean =>
   new URL(context.req.url).protocol === 'https:';
 
-const demoCredentialsCookieOptions = (context: DemoUserContext) => ({
+const demoCredentialsCookieOptions = (
+  context: DemoUserContext,
+): CookieOptions => ({
   path: '/',
   httpOnly: true,
-  sameSite: 'Lax' as const,
+  sameSite: 'Lax',
   secure: isHttpsRequest(context),
   maxAge: DEMO_CREDENTIALS_COOKIE_MAX_AGE_SECONDS,
 });
 
-const sessionCookieOptions = (context: DemoUserContext) => ({
+const sessionCookieOptions = (context: DemoUserContext): CookieOptions => ({
   path: '/',
   httpOnly: true,
-  sameSite: 'Lax' as const,
+  sameSite: 'Lax',
   secure: isHttpsRequest(context),
 });
 
@@ -157,7 +160,10 @@ export const demoUser = new Hono<{ Bindings: Env }>()
   .use(
     csrf({
       origin: (origin, context) =>
-        isTrustedAuthOrigin(origin, context.env.BETTER_AUTH_URL),
+        isTrustedAuthOrigin({
+          origin,
+          betterAuthUrl: context.env.BETTER_AUTH_URL,
+        }),
     }),
   )
   .get('/', (context) => {
@@ -189,7 +195,10 @@ export const demoUser = new Hono<{ Bindings: Env }>()
     if (
       existingUser &&
       isDemoUserEmail(existingUser.email) &&
-      isDemoUserExpired(existingUser.createdAt)
+      isDemoUserExpired({
+        createdAt: existingUser.createdAt,
+        now: new Date(),
+      })
     ) {
       await deleteUserById(database, existingUser.id);
     }

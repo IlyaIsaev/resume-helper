@@ -28,12 +28,14 @@ type DeleteCareerStepProps = {
 
 export const DeleteCareerStep = reatomComponent(
   ({ step }: DeleteCareerStepProps) => {
+    const handleOpenChange = (shouldOpen: boolean) => {
+      setDeleteCareerStepDialogOpen(step.id, shouldOpen);
+    };
+
     return (
       <Dialog
         open={isCareerStepDeleteDialogOpen(step.id)}
-        onOpenChange={wrap((shouldOpen: boolean) => {
-          setDeleteCareerStepDialogOpen(step.id, shouldOpen);
-        })}
+        onOpenChange={wrap(handleOpenChange)}
       >
         <DialogTrigger asChild>
           <Button

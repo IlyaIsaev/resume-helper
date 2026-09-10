@@ -1,4 +1,11 @@
-import { action, atom, withAbort, withAsync, wrap } from '@reatom/core';
+import {
+  action,
+  atom,
+  computed,
+  withAbort,
+  withAsync,
+  wrap,
+} from '@reatom/core';
 import { filter, flatten, map, pipe } from 'es-toolkit/fp';
 
 import { clientApi } from '@/shared/api';
@@ -7,23 +14,29 @@ import { createdStepScrollAction } from '../lib/created-step-scroll';
 import {
   type CareerStepListCursor,
   type CareerStepSort,
-  defaultCareerStepSort,
+  DEFAULT_CAREER_STEP_SORT,
 } from './list-query';
 import type { CareerStep } from './schema';
 
-export const careerSteps = atom<Array<CareerStep> | null>(null, 'careerSteps');
+export const careerSteps = atom<ReadonlyArray<CareerStep> | null>(
+  null,
+  'careerSteps',
+);
 
 export const careerStepsCursor = atom<CareerStepListCursor | null>(
   null,
   'careerStepsCursor',
 );
 
-export const hasNextCareerStepsPage = atom(false, 'hasNextCareerStepsPage');
+export const hasNextCareerStepsPage = computed(
+  () => careerStepsCursor() !== null,
+  'hasNextCareerStepsPage',
+);
 
 export const careerStepsQuery = atom('', 'careerStepsQuery');
 
 export const careerStepsSort = atom<CareerStepSort>(
-  defaultCareerStepSort,
+  DEFAULT_CAREER_STEP_SORT,
   'careerStepsSort',
 );
 
@@ -40,12 +53,11 @@ export const initCareerStep = action((nextCareerStep: CareerStep | null) => {
 
 export const initCareerSteps = action(
   (page: {
-    items: Array<CareerStep>;
+    items: ReadonlyArray<CareerStep>;
     nextCursor: CareerStepListCursor | null;
   }) => {
     careerSteps.set(page.items);
     careerStepsCursor.set(page.nextCursor);
-    hasNextCareerStepsPage.set(page.nextCursor !== null);
   },
   'initCareerSteps',
 );
@@ -53,9 +65,8 @@ export const initCareerSteps = action(
 export const resetCareerSteps = action(() => {
   careerSteps.set(null);
   careerStepsCursor.set(null);
-  hasNextCareerStepsPage.set(false);
   careerStepsQuery.set('');
-  careerStepsSort.set(defaultCareerStepSort);
+  careerStepsSort.set(DEFAULT_CAREER_STEP_SORT);
   createdCareerStepId.set(null);
   careerStep.set(null);
 }, 'resetCareerSteps');
@@ -82,7 +93,7 @@ export const removeFromCareerSteps = action((stepId: string) => {
 }, 'removeFromCareerSteps');
 
 export const restoreToCareerSteps = action(
-  (step: CareerStep, atIndex: number) => {
+  ({ step, atIndex }: { step: CareerStep; atIndex: number }) => {
     careerSteps.set((careerSteps() ?? []).toSpliced(atIndex, 0, step));
   },
   'restoreToCareerSteps',
@@ -105,7 +116,7 @@ export const refetchCareerSteps = action(async () => {
 
 export const loadMoreCareerSteps = action(async () => {
   const cursor = careerStepsCursor();
-  if (!cursor || !hasNextCareerStepsPage()) return;
+  if (!cursor) return;
 
   try {
     const page = await wrap(
@@ -118,7 +129,6 @@ export const loadMoreCareerSteps = action(async () => {
 
     careerSteps.set([...(careerSteps() ?? []), ...page.items]);
     careerStepsCursor.set(page.nextCursor);
-    hasNextCareerStepsPage.set(page.nextCursor !== null);
   } catch {
     return;
   }
@@ -133,13 +143,13 @@ export const clearCreatedCareerStepScroll = action(() => {
 }, 'clearCreatedCareerStepScroll');
 
 export const createdCareerStepScrollAction = action(() => {
-  return createdStepScrollAction(
-    createdCareerStepId(),
-    (careerSteps() ?? []).map((step) => step.id),
-    {
+  return createdStepScrollAction({
+    scrollToId: createdCareerStepId(),
+    itemIds: (careerSteps() ?? []).map((step) => step.id),
+    status: {
       isFetching: !refetchCareerSteps.ready(),
       hasNextPage: hasNextCareerStepsPage(),
       isFetchingNextPage: !loadMoreCareerSteps.ready(),
     },
-  );
+  });
 }, 'createdCareerStepScrollAction');

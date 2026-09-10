@@ -14,6 +14,7 @@ import { initSignIn } from '@/pages/sign-in/index/model/sign-in';
 import { clientApi } from '@/shared/api';
 import { session } from '@/shared/auth';
 import {
+  CAREER_STEPS_PATH,
   HOME_PATH,
   PROFILE_PATH,
   SIGN_IN_PATH,
@@ -104,7 +105,10 @@ export const careerStepsRoute = protectedRoute.reatomRoute(
     params() {
       const { pathname } = urlAtom();
       if (pathname === PROFILE_PATH) return null;
-      if (pathname !== HOME_PATH && !pathname.startsWith('/career-steps/')) {
+      if (
+        pathname !== HOME_PATH &&
+        !pathname.startsWith(`${CAREER_STEPS_PATH}/`)
+      ) {
         return null;
       }
 
@@ -238,7 +242,7 @@ export const signUpRoute = rootRoute.reatomRoute(
   'signUpRoute',
 );
 
-export const appRoutes = {
+export const APP_ROUTE = {
   root: rootRoute,
   protected: protectedRoute,
   careerSteps: careerStepsRoute,
@@ -246,4 +250,4 @@ export const appRoutes = {
   profile: profileRoute,
   signIn: signInRoute,
   signUp: signUpRoute,
-};
+} as const;

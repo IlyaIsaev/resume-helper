@@ -10,7 +10,7 @@ const LOCAL_DEV_ORIGINS = [
   'http://localhost:3000',
   'http://127.0.0.1:3100',
   'http://localhost:3100',
-] as const;
+] as const satisfies ReadonlyArray<string>;
 
 export const trustedOriginsFor = (betterAuthUrl: string): Array<string> => {
   const origin = new URL(betterAuthUrl).origin;
@@ -22,10 +22,13 @@ export const trustedOriginsFor = (betterAuthUrl: string): Array<string> => {
   return [origin];
 };
 
-export const isTrustedAuthOrigin = (
-  origin: string,
-  betterAuthUrl: string,
-): boolean => trustedOriginsFor(betterAuthUrl).includes(origin);
+export const isTrustedAuthOrigin = ({
+  origin,
+  betterAuthUrl,
+}: {
+  origin: string;
+  betterAuthUrl: string;
+}): boolean => trustedOriginsFor(betterAuthUrl).includes(origin);
 
 export const createAuth = (env: Env) =>
   betterAuth({
@@ -52,15 +55,23 @@ export const createAuth = (env: Env) =>
     },
   });
 
-const isPublicEmailSignUp = (method: string, pathname: string): boolean =>
-  method === 'POST' && pathname.endsWith('/sign-up/email');
+const isPublicEmailSignUp = ({
+  method,
+  pathname,
+}: {
+  method: string;
+  pathname: string;
+}): boolean => method === 'POST' && pathname.endsWith('/sign-up/email');
 
 const rejectPublicEmailSignUp = async (
   context: Context<{ Bindings: Env }>,
   next: Next,
 ) => {
   if (
-    !isPublicEmailSignUp(context.req.method, new URL(context.req.url).pathname)
+    !isPublicEmailSignUp({
+      method: context.req.method,
+      pathname: new URL(context.req.url).pathname,
+    })
   ) {
     await next();
 

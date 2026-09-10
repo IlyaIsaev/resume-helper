@@ -80,7 +80,7 @@ export const deleteCareerStep = action(async () => {
     await wrap(clientApi.deleteCareerStep(stepId));
   } catch {
     if (isSearchEmpty && step !== undefined) {
-      restoreToCareerSteps(step, index);
+      restoreToCareerSteps({ step, atIndex: index });
     }
 
     toast.error(

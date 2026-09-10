@@ -9,9 +9,10 @@ import {
 
 import {
   addToCareerSteps,
+  type CareerStep,
   careerStepSchema,
   careerStepsQuery,
-  emptyCareerStepValues,
+  EMPTY_CAREER_STEP_VALUES,
   refetchCareerSteps,
   requestScrollToCreatedCareerStep,
 } from '@/entities/career-step';
@@ -43,7 +44,7 @@ export const setCreateCareerStepDialogOpen = action((shouldOpen: boolean) => {
   closeCreateCareerStepDialog();
 }, 'setCreateCareerStepDialogOpen');
 
-export const createCareerStepForm = reatomForm(emptyCareerStepValues, {
+export const createCareerStepForm = reatomForm(EMPTY_CAREER_STEP_VALUES, {
   name: 'createCareerStepForm',
   validateOnBlur: true,
   validateOnChange: true,
@@ -69,26 +70,15 @@ export const createCareerStepForm = reatomForm(emptyCareerStepValues, {
   },
 });
 
-const syncCreatedCareerStep = action(
-  async (created: {
-    id: string;
-    position: string;
-    startedOn: string;
-    endedOn: string | null;
-    description: string;
-    technologies: string;
-    createdAt: string;
-  }) => {
-    if (careerStepsQuery().length === 0) {
-      addToCareerSteps(created);
-    }
+const syncCreatedCareerStep = action(async (created: CareerStep) => {
+  if (careerStepsQuery().length === 0) {
+    addToCareerSteps(created);
+  }
 
-    requestScrollToCreatedCareerStep(created.id);
+  requestScrollToCreatedCareerStep(created.id);
 
-    await wrap(refetchCareerSteps());
-  },
-  'syncCreatedCareerStep',
-);
+  await wrap(refetchCareerSteps());
+}, 'syncCreatedCareerStep');
 
 createCareerStepForm.submit.onFulfill.extend(
   withCallHook(({ payload: created }) => {
@@ -102,11 +92,11 @@ createCareerStepForm.submit.onFulfill.extend(
   }),
 );
 
-export const createCareerStepDateParts = reatomCareerDateRange(
-  createCareerStepForm.fields.dates.from,
-  createCareerStepForm.fields.dates.to,
-  'createCareerStepDateParts',
-);
+export const createCareerStepDateParts = reatomCareerDateRange({
+  fromField: createCareerStepForm.fields.dates.from,
+  toField: createCareerStepForm.fields.dates.to,
+  name: 'createCareerStepDateParts',
+});
 
 export const isCreateCareerStepSubmitDisabled = computed(() => {
   if (!createCareerStepForm.submit.ready()) return true;

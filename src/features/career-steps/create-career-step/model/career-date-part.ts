@@ -14,34 +14,38 @@ import {
   parseTypedDate,
 } from '@/entities/career-step';
 
-export type DatePartAfterType = {
-  draft: string;
-  iso: string | undefined;
-  month: Date | undefined;
-};
+export type DatePartAfterType =
+  | { type: 'empty'; draft: string }
+  | { type: 'invalid'; draft: string }
+  | { type: 'valid'; draft: string; iso: string; month: Date };
 
 export const datePartAfterType = (nextDraft: string): DatePartAfterType => {
   if (nextDraft.trim() === '') {
-    return { draft: nextDraft, iso: '', month: undefined };
+    return { type: 'empty', draft: nextDraft };
   }
 
   const parsed = parseTypedDate(nextDraft);
   if (!parsed) {
-    return { draft: nextDraft, iso: undefined, month: undefined };
+    return { type: 'invalid', draft: nextDraft };
   }
 
   return {
+    type: 'valid',
     draft: nextDraft,
     iso: formatIsoDate(parsed),
     month: parsed,
   };
 };
 
-const reatomCareerDatePart = (
-  isoField: FieldAtom<string>,
-  name: string,
-  blurDates: () => void,
-) => {
+const reatomCareerDatePart = ({
+  isoField,
+  name,
+  blurDates,
+}: {
+  isoField: FieldAtom<string>;
+  name: string;
+  blurDates: () => void;
+}) => {
   const draft = atom(formatCareerDate(isoField()), `${name}.draft`);
   const isOpen = reatomBoolean(false, `${name}.isOpen`);
   const month = atom(parseIsoDate(isoField()) ?? new Date(), `${name}.month`);
@@ -62,12 +66,18 @@ const reatomCareerDatePart = (
     const next = datePartAfterType(event.target.value);
 
     draft.set(next.draft);
-    if (next.iso === undefined) return;
 
-    isoField.change(next.iso);
-    if (!next.month) return;
-
-    month.set(next.month);
+    switch (next.type) {
+      case 'empty':
+        isoField.change('');
+        return;
+      case 'invalid':
+        return;
+      case 'valid':
+        isoField.change(next.iso);
+        month.set(next.month);
+        return;
+    }
   }, `${name}.typeDraft`);
 
   const blurDraft = action(() => {
@@ -83,9 +93,9 @@ const reatomCareerDatePart = (
     isOpen.setFalse();
   }, `${name}.selectDate`);
 
-  const setOpen = action((open: boolean) => {
-    isOpen.set(open);
-    if (open) return;
+  const setOpen = action((shouldOpen: boolean) => {
+    isOpen.set(shouldOpen);
+    if (shouldOpen) return;
 
     blurDraft();
   }, `${name}.setOpen`);
@@ -118,19 +128,31 @@ const reatomCareerDatePart = (
   };
 };
 
-export const reatomCareerDateRange = (
-  fromField: FieldAtom<string>,
-  toField: FieldAtom<string>,
-  name: string,
-) => {
+export const reatomCareerDateRange = ({
+  fromField,
+  toField,
+  name,
+}: {
+  fromField: FieldAtom<string>;
+  toField: FieldAtom<string>;
+  name: string;
+}) => {
   const blurDates = action(() => {
     fromField.focus.in();
     toField.focus.in();
   }, `${name}.blurDates`);
 
   return {
-    from: reatomCareerDatePart(fromField, `${name}.from`, blurDates),
-    to: reatomCareerDatePart(toField, `${name}.to`, blurDates),
+    from: reatomCareerDatePart({
+      isoField: fromField,
+      name: `${name}.from`,
+      blurDates,
+    }),
+    to: reatomCareerDatePart({
+      isoField: toField,
+      name: `${name}.to`,
+      blurDates,
+    }),
   };
 };
 

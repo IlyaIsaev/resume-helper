@@ -6,13 +6,13 @@ import {
   careerStepListInputSchema,
   careerStepListRangeExtractor,
   careerStepSearchNeedle,
-  defaultCareerStepSort,
+  DEFAULT_CAREER_STEP_SORT,
   isCareerStepSort,
   matchesPresentLabel,
 } from '../model/list-query';
 
 test('defaults to newest start date', () => {
-  expect(defaultCareerStepSort).toBe('startedOn-desc');
+  expect(DEFAULT_CAREER_STEP_SORT).toBe('startedOn-desc');
   expect(isCareerStepSort('startedOn-desc')).toBe(true);
   expect(isCareerStepSort('startedOn-asc')).toBe(true);
   expect(isCareerStepSort('position-asc')).toBe(false);

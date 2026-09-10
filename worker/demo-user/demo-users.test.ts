@@ -14,10 +14,16 @@ test('a demo user is expired 24 hours after create', () => {
   const createdAt = new Date('2026-09-06T12:00:00.000Z');
 
   expect(
-    isDemoUserExpired(createdAt, new Date('2026-09-07T11:59:59.999Z')),
+    isDemoUserExpired({
+      createdAt,
+      now: new Date('2026-09-07T11:59:59.999Z'),
+    }),
   ).toBe(false);
 
   expect(
-    isDemoUserExpired(createdAt, new Date('2026-09-07T12:00:00.000Z')),
+    isDemoUserExpired({
+      createdAt,
+      now: new Date('2026-09-07T12:00:00.000Z'),
+    }),
   ).toBe(true);
 });

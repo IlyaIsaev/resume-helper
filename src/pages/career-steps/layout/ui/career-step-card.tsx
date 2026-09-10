@@ -34,7 +34,10 @@ export const CareerStepCard = reatomComponent(
             {step.position}
           </CardTitle>
           <CardDescription>
-            {formatCareerDateRange(step.startedOn, step.endedOn)}
+            {formatCareerDateRange({
+              from: step.startedOn,
+              to: step.endedOn,
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 px-3.5 pb-4">

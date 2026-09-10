@@ -32,12 +32,12 @@ export {
   CAREER_STEP_LIST_GAP,
   CAREER_STEP_LIST_MAX_HEIGHT,
   CAREER_STEP_PAGE_SIZE,
+  CAREER_STEP_SORT_OPTIONS,
   type CareerStepSort,
   careerStepListInputSchema,
   careerStepListRangeExtractor,
   careerStepSearchNeedle,
-  careerStepSortOptions,
-  defaultCareerStepSort,
+  DEFAULT_CAREER_STEP_SORT,
   isCareerStepSort,
   matchesPresentLabel,
 } from './model/list-query';
@@ -46,6 +46,6 @@ export {
   careerStepSchema,
   careerStepToFormValues,
   deleteCareerStepSchema,
-  emptyCareerStepValues,
+  EMPTY_CAREER_STEP_VALUES,
   updateCareerStepSchema,
 } from './model/schema';

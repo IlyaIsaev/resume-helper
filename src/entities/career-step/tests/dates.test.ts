@@ -25,18 +25,18 @@ test('formats a local date as YYYY-MM-DD without UTC shift', () => {
 });
 
 test('formats an open range as Present', () => {
-  expect(formatCareerDateRange('2026-09-08', null)).toMatch(
+  expect(formatCareerDateRange({ from: '2026-09-08', to: null })).toMatch(
     /8 Sept? 2026 – Present/,
   );
-  expect(formatCareerDateRange('2026-09-08', '')).toMatch(
+  expect(formatCareerDateRange({ from: '2026-09-08', to: '' })).toMatch(
     /8 Sept? 2026 – Present/,
   );
 });
 
 test('formats a closed range', () => {
-  expect(formatCareerDateRange('2026-09-08', '2026-12-01')).toMatch(
-    /8 Sept? 2026 – 1 Dec 2026/,
-  );
+  expect(
+    formatCareerDateRange({ from: '2026-09-08', to: '2026-12-01' }),
+  ).toMatch(/8 Sept? 2026 – 1 Dec 2026/);
 });
 
 test('formats a single ISO date for the typed input', () => {

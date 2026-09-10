@@ -23,7 +23,7 @@ type DatePartFieldProps = {
   label: string;
   selectLabel: string;
   placeholder?: string;
-  ariaInvalid?: boolean;
+  isInvalid?: boolean;
   datePart: CareerDatePart;
 };
 
@@ -33,7 +33,7 @@ const DatePartField = reatomComponent(
     label,
     selectLabel,
     placeholder,
-    ariaInvalid,
+    isInvalid,
     datePart,
   }: DatePartFieldProps) => {
     const { startMonth, endMonth } = careerStepCalendarBounds();
@@ -47,7 +47,7 @@ const DatePartField = reatomComponent(
             value={datePart.draft()}
             placeholder={placeholder}
             autoComplete="off"
-            aria-invalid={ariaInvalid}
+            aria-invalid={isInvalid}
             className="pr-9"
             onChange={wrap(datePart.typeDraft)}
             onBlur={wrap(datePart.blurDraft)}
@@ -101,7 +101,7 @@ type DateRangePickerProps = {
 };
 
 export const DateRangePicker = reatomComponent(
-  ({ id, dates, 'aria-invalid': ariaInvalid }: DateRangePickerProps) => {
+  ({ id, dates, 'aria-invalid': isInvalid }: DateRangePickerProps) => {
     const fromId = id ? `${id}-from` : 'dates-from';
     const toId = id ? `${id}-to` : 'dates-to';
 
@@ -111,7 +111,7 @@ export const DateRangePicker = reatomComponent(
           id={fromId}
           label="Start"
           selectLabel="Select start date"
-          ariaInvalid={ariaInvalid}
+          isInvalid={isInvalid}
           datePart={dates.from}
         />
         <DatePartField
@@ -119,7 +119,7 @@ export const DateRangePicker = reatomComponent(
           label="End"
           selectLabel="Select end date"
           placeholder="Present"
-          ariaInvalid={ariaInvalid}
+          isInvalid={isInvalid}
           datePart={dates.to}
         />
       </div>

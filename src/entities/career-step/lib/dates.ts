@@ -93,17 +93,22 @@ export const parseTypedDate = (value: string): Date | undefined => {
   return dateFromParts(year, month, day);
 };
 
-export const careerStepCalendarBounds = (now = new Date()) => {
+export const careerStepCalendarBounds = (
+  now = new Date(),
+): { startMonth: Date; endMonth: Date } => {
   return {
     startMonth: new Date(CAREER_STEP_CALENDAR_START_YEAR, 0, 1),
     endMonth: new Date(now.getFullYear() + 1, 11, 1),
   };
 };
 
-export const formatCareerDateRange = (
-  from: string,
-  to: string | null | undefined,
-): string => {
+export const formatCareerDateRange = ({
+  from,
+  to,
+}: {
+  from: string;
+  to: string | null;
+}): string => {
   const start = parseIsoDate(from);
   if (!start) return '';
 

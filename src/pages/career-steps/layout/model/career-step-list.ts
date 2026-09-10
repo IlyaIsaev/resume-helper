@@ -120,32 +120,37 @@ export const maybeLoadMoreCareerSteps = action(() => {
 
 export const applyCreatedCareerStepScroll = action(async () => {
   const scrollAction = createdCareerStepScrollAction();
-  if (scrollAction.type === 'fetchNext') {
-    void wrap(loadMoreCareerSteps());
 
-    return;
+  switch (scrollAction.type) {
+    case 'idle':
+    case 'wait':
+      return;
+    case 'fetchNext':
+      void wrap(loadMoreCareerSteps());
+      return;
+    case 'scroll': {
+      if (careerStepListViewportHeight() === 0) return;
+
+      const scroller = careerStepListScroller();
+      if (!scroller) return;
+
+      const { index } = scrollAction;
+
+      scroller.scrollToIndex(index, { align: 'start' });
+
+      await wrap(
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => {
+            wrap(resolve)();
+          });
+        }),
+      );
+
+      scroller.scrollToIndex(index, { align: 'start' });
+      clearCreatedCareerStepScroll();
+      return;
+    }
   }
-
-  if (scrollAction.type !== 'scroll') return;
-  if (careerStepListViewportHeight() === 0) return;
-
-  const scroller = careerStepListScroller();
-  if (!scroller) return;
-
-  const { index } = scrollAction;
-
-  scroller.scrollToIndex(index, { align: 'start' });
-
-  await wrap(
-    new Promise<void>((resolve) => {
-      requestAnimationFrame(() => {
-        wrap(resolve)();
-      });
-    }),
-  );
-
-  scroller.scrollToIndex(index, { align: 'start' });
-  clearCreatedCareerStepScroll();
 }, 'applyCreatedCareerStepScroll');
 
 effect(() => {

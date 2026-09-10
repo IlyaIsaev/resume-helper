@@ -56,10 +56,10 @@ const failedRequestMessage = async (
   return `${failedMessage}: ${response.status}`;
 };
 
-const readJson = async <T>(
+const readJson = async <TJson>(
   response: Response,
   failedMessage: string,
-): Promise<T> => {
+): Promise<TJson> => {
   await retrySessionIfUnauthorized(response);
   if (!response.ok) throw new Error(`${failedMessage}: ${response.status}`);
 
@@ -102,6 +102,12 @@ type CreateDemoUserBody = InferRequestType<
   (typeof api.api)['demo-user']['$post']
 >['json'];
 
+type CareerStepsQuery = InferRequestType<
+  (typeof api.api)['career-steps']['$get']
+>['query'];
+
+export type CareerStep = CareerStepResponse;
+
 export type CareerStepListCursor = NonNullable<
   CareerStepsResponse['nextCursor']
 >;
@@ -109,7 +115,7 @@ export type CareerStepListCursor = NonNullable<
 export const clientApi = {
   async loadCareerSteps(input: {
     query?: string;
-    sort?: 'startedOn-desc' | 'startedOn-asc';
+    sort?: CareerStepsQuery['sort'];
     cursor?: CareerStepListCursor | null;
   }): Promise<CareerStepsResponse> {
     const query =

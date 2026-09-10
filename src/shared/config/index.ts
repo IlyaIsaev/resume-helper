@@ -1,4 +1,5 @@
 export {
+  CAREER_STEPS_PATH,
   careerStepEditPath,
   HOME_PATH,
   PROFILE_PATH,

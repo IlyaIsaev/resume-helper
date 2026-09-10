@@ -23,7 +23,7 @@ type CareerStepsContext = {
   };
 };
 
-const careerStepListSelect = {
+const CAREER_STEP_LIST_SELECT = {
   id: careerStep.id,
   position: careerStep.position,
   startedOn: careerStep.startedOn,
@@ -143,8 +143,13 @@ const toCareerStep = (step: {
   createdAt: toIsoCreatedAt(step.createdAt),
 });
 
-const ownedCareerStep = (stepId: string, userId: string) =>
-  and(eq(careerStep.id, stepId), eq(careerStep.userId, userId));
+const ownedCareerStep = ({
+  stepId,
+  userId,
+}: {
+  stepId: string;
+  userId: string;
+}) => and(eq(careerStep.id, stepId), eq(careerStep.userId, userId));
 
 const careerStepSearchCondition = (needle: string) => {
   const fieldMatch = or(
@@ -210,7 +215,10 @@ const requireSession = async (
   const createdAtDate =
     createdAt instanceof Date ? createdAt : new Date(createdAt);
 
-  if (isDemoUserEmail(email) && isDemoUserExpired(createdAtDate)) {
+  if (
+    isDemoUserEmail(email) &&
+    isDemoUserExpired({ createdAt: createdAtDate, now: new Date() })
+  ) {
     await deleteUserById(createDatabase(context.env.DB), userId);
 
     return context.json({ message: 'Unauthorized' }, 401);
@@ -226,7 +234,10 @@ export const careerSteps = new Hono<CareerStepsContext>()
   .use(
     csrf({
       origin: (origin, context) =>
-        isTrustedAuthOrigin(origin, context.env.BETTER_AUTH_URL),
+        isTrustedAuthOrigin({
+          origin,
+          betterAuthUrl: context.env.BETTER_AUTH_URL,
+        }),
     }),
   )
   .use(requireSession)
@@ -261,7 +272,7 @@ export const careerSteps = new Hono<CareerStepsContext>()
           ];
 
     const rows = await database
-      .select(careerStepListSelect)
+      .select(CAREER_STEP_LIST_SELECT)
       .from(careerStep)
       .where(and(...filters))
       .orderBy(...orderBy)
@@ -284,9 +295,9 @@ export const careerSteps = new Hono<CareerStepsContext>()
     const database = createDatabase(context.env.DB);
 
     const [step] = await database
-      .select(careerStepListSelect)
+      .select(CAREER_STEP_LIST_SELECT)
       .from(careerStep)
-      .where(ownedCareerStep(id, context.get('userId')))
+      .where(ownedCareerStep({ stepId: id, userId: context.get('userId') }))
       .limit(1);
     if (!step) return context.json({ message: 'Career step not found' }, 404);
 
@@ -310,7 +321,7 @@ export const careerSteps = new Hono<CareerStepsContext>()
         technologies: fields.technologies,
         createdAt,
       })
-      .returning(careerStepListSelect);
+      .returning(CAREER_STEP_LIST_SELECT);
     if (!created)
       return context.json({ message: 'Could not create career step' }, 500);
 
@@ -335,8 +346,8 @@ export const careerSteps = new Hono<CareerStepsContext>()
           description: fields.description,
           technologies: fields.technologies,
         })
-        .where(ownedCareerStep(id, context.get('userId')))
-        .returning(careerStepListSelect);
+        .where(ownedCareerStep({ stepId: id, userId: context.get('userId') }))
+        .returning(CAREER_STEP_LIST_SELECT);
       if (!updated)
         return context.json({ message: 'Career step not found' }, 404);
 
@@ -349,7 +360,7 @@ export const careerSteps = new Hono<CareerStepsContext>()
 
     const [deleted] = await database
       .delete(careerStep)
-      .where(ownedCareerStep(id, context.get('userId')))
+      .where(ownedCareerStep({ stepId: id, userId: context.get('userId') }))
       .returning({ id: careerStep.id });
     if (!deleted)
       return context.json({ message: 'Career step not found' }, 404);

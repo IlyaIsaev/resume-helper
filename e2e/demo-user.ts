@@ -2,7 +2,9 @@ import { expect, type Page } from '@playwright/test';
 
 const demoEmail = /demo-user-[a-f0-9]{8}@demo\.com/;
 
-export const signInAsDemoUser = async (page: Page) => {
+export const signInAsDemoUser = async (
+  page: Page,
+): Promise<{ email: string; password: string }> => {
   await page.goto('/sign-in');
 
   await expect(page.getByLabel('email')).toHaveValue(demoEmail);

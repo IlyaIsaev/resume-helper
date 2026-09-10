@@ -1,9 +1,9 @@
 import { action, computed } from '@reatom/core';
 
-import { ThemeMode, theme } from '@/shared/theme';
+import { THEME_MODE, theme } from '@/shared/theme';
 
 export const isDarkTheme = computed(
-  () => theme() === ThemeMode.dark,
+  () => theme() === THEME_MODE.dark,
   'isDarkTheme',
 );
 
@@ -15,6 +15,6 @@ export const themeSwitcherLabel = computed(() => {
 
 export const toggleTheme = action(() => {
   theme.set((themeMode) =>
-    themeMode === ThemeMode.dark ? ThemeMode.light : ThemeMode.dark,
+    themeMode === THEME_MODE.dark ? THEME_MODE.light : THEME_MODE.dark,
   );
 }, 'toggleTheme');

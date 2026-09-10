@@ -10,17 +10,18 @@ export const DEMO_USER_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 type Database = ReturnType<typeof createDatabase>;
 
-type DemoUserRow = {
-  id: string;
-  email: string;
-  createdAt: Date;
-};
+type DemoUserRow = Pick<typeof user.$inferSelect, 'id' | 'email' | 'createdAt'>;
 
 export const isDemoUserEmail = (email: string): boolean =>
   DEMO_USER_EMAIL_PATTERN.test(email);
 
-export const isDemoUserExpired = (createdAt: Date, now = new Date()): boolean =>
-  now.getTime() - createdAt.getTime() >= DEMO_USER_MAX_AGE_MS;
+export const isDemoUserExpired = ({
+  createdAt,
+  now,
+}: {
+  createdAt: Date;
+  now: Date;
+}): boolean => now.getTime() - createdAt.getTime() >= DEMO_USER_MAX_AGE_MS;
 
 export const deleteUserById = async (
   database: Database,
@@ -37,7 +38,7 @@ const isExpiredDemoUser =
   (now: Date) =>
   (demoUser: DemoUserRow): boolean =>
     isDemoUserEmail(demoUser.email) &&
-    isDemoUserExpired(demoUser.createdAt, now);
+    isDemoUserExpired({ createdAt: demoUser.createdAt, now });
 
 export const deleteExpiredDemoUsers = async (
   database: Database,

@@ -1,14 +1,17 @@
 import type { Range } from '@tanstack/react-virtual';
 import * as v from 'valibot';
 
-export const careerStepSortOptions = [
+export const CAREER_STEP_SORT_OPTIONS = [
   { value: 'startedOn-desc', label: 'Newest' },
   { value: 'startedOn-asc', label: 'Oldest' },
-] as const;
+] as const satisfies ReadonlyArray<{
+  readonly value: string;
+  readonly label: string;
+}>;
 
-export type CareerStepSort = (typeof careerStepSortOptions)[number]['value'];
+export type CareerStepSort = (typeof CAREER_STEP_SORT_OPTIONS)[number]['value'];
 
-export const defaultCareerStepSort: CareerStepSort = 'startedOn-desc';
+export const DEFAULT_CAREER_STEP_SORT: CareerStepSort = 'startedOn-desc';
 
 export const CAREER_STEP_PAGE_SIZE = 20;
 export const CAREER_STEP_LIST_VISIBLE_LIMIT = 10;
@@ -18,8 +21,9 @@ export const CAREER_STEP_LIST_MAX_HEIGHT =
   CAREER_STEP_LIST_VISIBLE_LIMIT * CAREER_STEP_LIST_ESTIMATE_SIZE +
   (CAREER_STEP_LIST_VISIBLE_LIMIT - 1) * CAREER_STEP_LIST_GAP;
 
-export const isCareerStepSort = (value: string): value is CareerStepSort =>
-  careerStepSortOptions.some((option) => option.value === value);
+export const isCareerStepSort = (value: unknown): value is CareerStepSort =>
+  typeof value === 'string' &&
+  CAREER_STEP_SORT_OPTIONS.some((option) => option.value === value);
 
 export const careerStepSearchNeedle = (query: string): string =>
   query.trim().toLowerCase();
@@ -38,13 +42,13 @@ export type CareerStepListCursor = v.InferOutput<
 >;
 
 const careerStepSortSchema = v.picklist([
-  careerStepSortOptions[0].value,
-  careerStepSortOptions[1].value,
+  CAREER_STEP_SORT_OPTIONS[0].value,
+  CAREER_STEP_SORT_OPTIONS[1].value,
 ]);
 
 export const careerStepListInputSchema = v.object({
   query: v.optional(v.string(), ''),
-  sort: v.optional(careerStepSortSchema, defaultCareerStepSort),
+  sort: v.optional(careerStepSortSchema, DEFAULT_CAREER_STEP_SORT),
   cursor: v.optional(v.nullable(careerStepListCursorSchema)),
   limit: v.optional(
     v.pipe(
@@ -61,7 +65,7 @@ export type CareerStepListInput = v.InferOutput<
   typeof careerStepListInputSchema
 >;
 
-export const careerStepListRangeExtractor = (range: Range): number[] => {
+export const careerStepListRangeExtractor = (range: Range): Array<number> => {
   if (range.count <= 0) return [];
 
   const start = Math.min(Math.max(range.startIndex, 0), range.count - 1);
@@ -73,7 +77,7 @@ export const careerStepListRangeExtractor = (range: Range): number[] => {
 
   if (end < start) return [];
 
-  const indexes: number[] = [];
+  const indexes: Array<number> = [];
   for (let index = start; index <= end; index += 1) {
     indexes.push(index);
   }

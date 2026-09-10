@@ -1,1 +1,2 @@
-export { ThemeMode, theme } from './theme';
+export type { ThemeMode } from './theme';
+export { THEME_MODE, theme } from './theme';

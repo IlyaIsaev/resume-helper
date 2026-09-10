@@ -1,5 +1,9 @@
 import * as v from 'valibot';
 
+import type { CareerStep } from '@/shared/api';
+
+export type { CareerStep };
+
 export const careerStepDatesSchema = v.pipe(
   v.object({
     from: v.pipe(
@@ -42,17 +46,7 @@ export const careerStepSchema = v.object({
 
 export type CareerStepValues = v.InferOutput<typeof careerStepSchema>;
 
-export type CareerStep = {
-  id: string;
-  position: string;
-  startedOn: string;
-  endedOn: string | null;
-  description: string;
-  technologies: string;
-  createdAt: string;
-};
-
-export const emptyCareerStepValues: CareerStepValues = {
+export const EMPTY_CAREER_STEP_VALUES: CareerStepValues = {
   position: '',
   dates: { from: '', to: '' },
   description: '',
@@ -70,13 +64,7 @@ export const deleteCareerStepSchema = v.object({
   id: v.pipe(v.string(), v.minLength(1, 'Id is required')),
 });
 
-export const careerStepToFormValues = (step: {
-  position: string;
-  startedOn: string;
-  endedOn: string | null;
-  description: string;
-  technologies: string;
-}): CareerStepValues => ({
+export const careerStepToFormValues = (step: CareerStep): CareerStepValues => ({
   position: step.position,
   dates: { from: step.startedOn, to: step.endedOn ?? '' },
   description: step.description,
