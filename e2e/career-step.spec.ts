@@ -1,21 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 
-async function signUpAsDemoUser(page: Page) {
-  await page.goto('/sign-up');
-  await page.waitForLoadState('networkidle');
-  await expect(page.getByLabel('Email')).not.toHaveValue('');
-  await expect(
-    page.getByRole('button', { name: 'Create account' }),
-  ).toBeEnabled();
-  await page.getByRole('button', { name: 'Create account' }).click();
-  await expect(page).toHaveURL('/', { timeout: 20000 });
-  await expect(
-    page.getByRole('button', { name: 'Add career step' }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Open account menu' }),
-  ).toBeVisible();
-}
+import { signInAsDemoUser } from './demo-user';
 
 function careerStepDateInput(page: Page, name: 'Start' | 'End') {
   return page.getByRole('dialog').getByRole('textbox', { name });
@@ -85,14 +70,14 @@ async function addSeniorEngineerStep(page: Page) {
 test('add career step is focused when the career page opens', async ({
   page,
 }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await expect(
     page.getByRole('button', { name: 'Add career step' }),
   ).toBeFocused();
 });
 
 test('adds a career step card from the dialog form', async ({ page }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addSeniorEngineerStep(page);
 
   const card = page.getByTestId('career-step-card');
@@ -115,7 +100,7 @@ test('adds a career step card from the dialog form', async ({ page }) => {
 test('creates a career step from a typed start date and a year dropdown', async ({
   page,
 }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await page.getByRole('button', { name: 'Add career step' }).click();
 
   const dialog = page.getByRole('dialog');
@@ -154,7 +139,7 @@ test('creates a career step from a typed start date and a year dropdown', async 
 });
 
 test('edits a career step from the card', async ({ page }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addSeniorEngineerStep(page);
 
   const card = page.getByTestId('career-step-card');
@@ -207,7 +192,7 @@ test('edits a career step from the card', async ({ page }) => {
 test('closes the edit dialog and returns to the career page', async ({
   page,
 }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addSeniorEngineerStep(page);
 
   const card = page.getByTestId('career-step-card');
@@ -227,7 +212,7 @@ test('closes the edit dialog and returns to the career page', async ({
 test('opens a prefilled edit dialog from the career step URL', async ({
   page,
 }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addSeniorEngineerStep(page);
 
   const href = await page
@@ -264,7 +249,7 @@ test('opens a prefilled edit dialog from the career step URL', async ({
 });
 
 test('canceling career step deletion keeps the card', async ({ page }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addSeniorEngineerStep(page);
 
   const card = page.getByTestId('career-step-card');
@@ -288,7 +273,7 @@ test('canceling career step deletion keeps the card', async ({ page }) => {
 });
 
 test('deletes a career step from the card', async ({ page }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addSeniorEngineerStep(page);
 
   await page.reload();
@@ -319,7 +304,7 @@ test('deletes a career step from the card', async ({ page }) => {
 test('filters career steps across fields and restores the full list', async ({
   page,
 }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addSeniorEngineerStep(page);
   await addCareerStep(page, {
     position: 'Product Designer',
@@ -356,7 +341,7 @@ test('filters career steps across fields and restores the full list', async ({
 });
 
 test('sorts career steps by start date', async ({ page }) => {
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
   await addCareerStep(page, {
     position: 'Product Designer',
     description: 'Designed the mobile app',
@@ -413,7 +398,7 @@ test('scrolls to a created career step that is out of view', async ({
   page,
 }) => {
   test.setTimeout(180_000);
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
 
   for (let index = 1; index <= 11; index += 1) {
     await addCareerStep(page, {
@@ -465,7 +450,7 @@ test('virtual list shows at most 10 career steps and stays above add', async ({
   page,
 }) => {
   test.setTimeout(180_000);
-  await signUpAsDemoUser(page);
+  await signInAsDemoUser(page);
 
   for (let index = 1; index <= 11; index += 1) {
     await addCareerStep(page, {

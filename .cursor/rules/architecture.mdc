@@ -1,0 +1,14 @@
+---
+description: FSD layers, Reatom, forms, and Worker API for this SPA
+alwaysApply: true
+---
+
+# Architecture
+
+Vite SPA + Cloudflare Worker (Hono). Do not add TanStack Start, Router, Query, DB, or Form. Do not add next-themes.
+
+Layers: `app` → `pages` → `features` → `entities` → `shared`. Pages have no public `index.ts`; `src/app/routes.tsx` lazy-imports page UI files. Features and entities are consumed through `index.ts`.
+
+Forms: `reatomForm` + Valibot `schema` + shadcn `Form` / `FormField` / `FormMessage` from `@/shared/ui`. Show `FormMessage` on blur (`triggered`). Disable submit when invalid or submitting; create/update also disable when `!dirty`.
+
+Toasts after create/update: `Career step “{name}” was created.` / `was updated.` (and the matching failure copy). Update success uses the previous position.

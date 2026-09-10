@@ -1,14 +1,31 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "resume-helper",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-09-07",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
   "observability": {
     "enabled": true
   },
+  "ratelimits": [
+    {
+      "name": "AUTH_RATE_LIMITER",
+      "namespace_id": "2001",
+      "simple": {
+        "limit": 30,
+        "period": 10
+      }
+    }
+  ],
   "secrets": {
     "required": ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL"]
+  },
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
   },
   "d1_databases": [
     {

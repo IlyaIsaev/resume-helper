@@ -52,44 +52,12 @@ export type CareerStep = {
   createdAt: string;
 };
 
-export function toCareerStep(step: {
-  id: string;
-  position: string;
-  startedOn: string;
-  endedOn: string | null;
-  description: string;
-  technologies: string;
-  createdAt: Date | string;
-}): CareerStep {
-  return {
-    id: step.id,
-    position: step.position,
-    startedOn: step.startedOn,
-    endedOn: step.endedOn,
-    description: step.description,
-    technologies: step.technologies,
-    createdAt:
-      step.createdAt instanceof Date
-        ? step.createdAt.toISOString()
-        : step.createdAt,
-  };
-}
-
-export function careerStepFromFormValues(
-  id: string,
-  value: CareerStepValues,
-  createdAt: string,
-): CareerStep {
-  return {
-    id,
-    position: value.position,
-    startedOn: value.dates.from,
-    endedOn: value.dates.to || null,
-    description: value.description,
-    technologies: value.technologies,
-    createdAt,
-  };
-}
+export const emptyCareerStepValues: CareerStepValues = {
+  position: '',
+  dates: { from: '', to: '' },
+  description: '',
+  technologies: '',
+};
 
 export const updateCareerStepSchema = v.intersect([
   v.object({
@@ -98,36 +66,19 @@ export const updateCareerStepSchema = v.intersect([
   careerStepSchema,
 ]);
 
-export type UpdateCareerStepValues = v.InferOutput<
-  typeof updateCareerStepSchema
->;
-
 export const deleteCareerStepSchema = v.object({
   id: v.pipe(v.string(), v.minLength(1, 'Id is required')),
 });
 
-export type DeleteCareerStepValues = v.InferOutput<
-  typeof deleteCareerStepSchema
->;
-
-export const emptyCareerStepValues: CareerStepValues = {
-  position: '',
-  dates: { from: '', to: '' },
-  description: '',
-  technologies: '',
-};
-
-export function careerStepToFormValues(step: {
+export const careerStepToFormValues = (step: {
   position: string;
   startedOn: string;
   endedOn: string | null;
   description: string;
   technologies: string;
-}): CareerStepValues {
-  return {
-    position: step.position,
-    dates: { from: step.startedOn, to: step.endedOn ?? '' },
-    description: step.description,
-    technologies: step.technologies,
-  };
-}
+}): CareerStepValues => ({
+  position: step.position,
+  dates: { from: step.startedOn, to: step.endedOn ?? '' },
+  description: step.description,
+  technologies: step.technologies,
+});

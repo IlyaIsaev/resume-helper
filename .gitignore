@@ -20,3 +20,5 @@ playwright/.cache/
 .playwright-mcp/
 /*.png
 lefthook-local.yml
+.cursor/skills/verify-resume-helper/.run/
+.cursor/skills/verify-resume-helper/evidence/

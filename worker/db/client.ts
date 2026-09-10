@@ -1,0 +1,8 @@
+import { type DrizzleD1Database, drizzle } from 'drizzle-orm/d1';
+
+import * as schema from './schema';
+
+export const createDatabase = (
+  database: D1Database,
+): DrizzleD1Database<typeof schema> & { $client: D1Database } =>
+  drizzle(database, { schema });

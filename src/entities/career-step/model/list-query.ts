@@ -18,26 +18,14 @@ export const CAREER_STEP_LIST_MAX_HEIGHT =
   CAREER_STEP_LIST_VISIBLE_LIMIT * CAREER_STEP_LIST_ESTIMATE_SIZE +
   (CAREER_STEP_LIST_VISIBLE_LIMIT - 1) * CAREER_STEP_LIST_GAP;
 
-export const careerStepListQueryKeyRoot = ['career-steps', 'list'] as const;
+export const isCareerStepSort = (value: string): value is CareerStepSort =>
+  careerStepSortOptions.some((option) => option.value === value);
 
-export function careerStepListInfiniteQueryKey(
-  query: string,
-  sort: CareerStepSort,
-) {
-  return [...careerStepListQueryKeyRoot, query, sort] as const;
-}
+export const careerStepSearchNeedle = (query: string): string =>
+  query.trim().toLowerCase();
 
-export function isCareerStepSort(value: string): value is CareerStepSort {
-  return careerStepSortOptions.some((option) => option.value === value);
-}
-
-export function careerStepSearchNeedle(query: string): string {
-  return query.trim().toLowerCase();
-}
-
-export function matchesPresentLabel(needle: string): boolean {
-  return needle.length > 0 && 'present'.includes(needle);
-}
+export const matchesPresentLabel = (needle: string): boolean =>
+  needle.length > 0 && 'present'.includes(needle);
 
 export const careerStepListCursorSchema = v.object({
   startedOn: v.pipe(v.string(), v.isoDate()),
@@ -73,7 +61,7 @@ export type CareerStepListInput = v.InferOutput<
   typeof careerStepListInputSchema
 >;
 
-export function careerStepListRangeExtractor(range: Range): number[] {
+export const careerStepListRangeExtractor = (range: Range): number[] => {
   if (range.count <= 0) return [];
 
   const start = Math.min(Math.max(range.startIndex, 0), range.count - 1);
@@ -90,4 +78,4 @@ export function careerStepListRangeExtractor(range: Range): number[] {
     indexes.push(index);
   }
   return indexes;
-}
+};

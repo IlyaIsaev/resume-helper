@@ -27,7 +27,7 @@ const monthIndexByName = (() => {
   return names;
 })();
 
-export function parseIsoDate(value: string): Date | undefined {
+export const parseIsoDate = (value: string): Date | undefined => {
   const match = ISO_DATE.exec(value);
   if (!match) return undefined;
 
@@ -45,20 +45,20 @@ export function parseIsoDate(value: string): Date | undefined {
   }
 
   return date;
-}
+};
 
-export function formatIsoDate(date: Date): string {
+export const formatIsoDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
-}
+};
 
-function dateFromParts(
+const dateFromParts = (
   year: number,
   month: number,
   day: number,
-): Date | undefined {
+): Date | undefined => {
   const date = new Date(year, month, day);
   if (
     date.getFullYear() !== year ||
@@ -68,14 +68,14 @@ function dateFromParts(
     return undefined;
   }
   return date;
-}
+};
 
-export function formatCareerDate(value: string): string {
+export const formatCareerDate = (value: string): string => {
   const date = parseIsoDate(value);
   return date ? displayFormatter.format(date) : '';
-}
+};
 
-export function parseTypedDate(value: string): Date | undefined {
+export const parseTypedDate = (value: string): Date | undefined => {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
 
@@ -91,19 +91,19 @@ export function parseTypedDate(value: string): Date | undefined {
   if (month === undefined) return undefined;
 
   return dateFromParts(year, month, day);
-}
+};
 
-export function careerStepCalendarBounds(now = new Date()) {
+export const careerStepCalendarBounds = (now = new Date()) => {
   return {
     startMonth: new Date(CAREER_STEP_CALENDAR_START_YEAR, 0, 1),
     endMonth: new Date(now.getFullYear() + 1, 11, 1),
   };
-}
+};
 
-export function formatCareerDateRange(
+export const formatCareerDateRange = (
   from: string,
   to: string | null | undefined,
-): string {
+): string => {
   const start = parseIsoDate(from);
   if (!start) return '';
 
@@ -114,4 +114,4 @@ export function formatCareerDateRange(
   if (!end) return `${startLabel} – Present`;
 
   return `${startLabel} – ${displayFormatter.format(end)}`;
-}
+};

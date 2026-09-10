@@ -4,7 +4,7 @@ export type CreatedStepScrollAction =
   | { type: 'fetchNext' }
   | { type: 'scroll'; index: number };
 
-export function createdStepScrollAction(
+export const createdStepScrollAction = (
   scrollToId: string | null,
   itemIds: readonly string[],
   status: {
@@ -12,7 +12,7 @@ export function createdStepScrollAction(
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
   },
-): CreatedStepScrollAction {
+): CreatedStepScrollAction => {
   if (scrollToId === null) return { type: 'idle' };
 
   const index = itemIds.indexOf(scrollToId);
@@ -20,4 +20,4 @@ export function createdStepScrollAction(
   if (status.isFetching || status.isFetchingNextPage) return { type: 'wait' };
   if (status.hasNextPage) return { type: 'fetchNext' };
   return { type: 'wait' };
-}
+};
