@@ -11,7 +11,7 @@ import {
   matchesPresentLabel,
 } from '../model/list-query';
 
-test('defaults to newest start date', () => {
+test('should accept startedOn sorts and reject others when validating the sort', () => {
   expect(DEFAULT_CAREER_STEP_SORT).toBe('startedOn-desc');
   expect(isCareerStepSort('startedOn-desc')).toBe(true);
   expect(isCareerStepSort('startedOn-asc')).toBe(true);
@@ -19,12 +19,12 @@ test('defaults to newest start date', () => {
   expect(isCareerStepSort('company-asc')).toBe(false);
 });
 
-test('trims and lowercases the search needle', () => {
+test('should trim and lowercase the needle when the search query has padding', () => {
   expect(careerStepSearchNeedle('  SENIOR ENGINEER  ')).toBe('senior engineer');
   expect(careerStepSearchNeedle('   ')).toBe('');
 });
 
-test('matches Present for ongoing roles', () => {
+test('should match Present when the needle is a prefix of present', () => {
   expect(matchesPresentLabel('present')).toBe(true);
   expect(matchesPresentLabel('pre')).toBe(true);
   expect(matchesPresentLabel('SENT')).toBe(false);
@@ -32,7 +32,7 @@ test('matches Present for ongoing roles', () => {
   expect(matchesPresentLabel('absent')).toBe(false);
 });
 
-test('page size is 20 and larger limits are clamped', () => {
+test('should clamp the page size to 20 when the requested limit is larger', () => {
   expect(CAREER_STEP_PAGE_SIZE).toBe(20);
 
   const parsed = v.parse(careerStepListInputSchema, { limit: 50 });
@@ -45,7 +45,7 @@ test('page size is 20 and larger limits are clamped', () => {
   expect(defaults.cursor).toBeUndefined();
 });
 
-test('range extractor never returns more than 10 indexes', () => {
+test('should return at most 10 indexes when extracting a visible range', () => {
   expect(CAREER_STEP_LIST_VISIBLE_LIMIT).toBe(10);
   expect(
     careerStepListRangeExtractor({
@@ -65,7 +65,7 @@ test('range extractor never returns more than 10 indexes', () => {
   ).toEqual([8, 9, 10, 11, 12, 13, 14, 15, 16, 17]);
 });
 
-test('range extractor stays within the loaded count', () => {
+test('should stay within the loaded count when extracting a visible range', () => {
   expect(
     careerStepListRangeExtractor({
       startIndex: 0,

@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 
 import { datePartAfterType } from '../model/career-date-part';
 
-test('clears the ISO value when the typed draft is empty', () => {
+test('should clear the ISO value when the typed draft is empty', () => {
   expect(datePartAfterType('')).toEqual({
     type: 'empty',
     draft: '',
@@ -13,14 +13,14 @@ test('clears the ISO value when the typed draft is empty', () => {
   });
 });
 
-test('keeps the draft and leaves ISO unchanged while the date is incomplete', () => {
+test('should keep the draft and leave ISO unchanged when the typed date is incomplete', () => {
   expect(datePartAfterType('8 Sept')).toEqual({
     type: 'invalid',
     draft: '8 Sept',
   });
 });
 
-test('commits an ISO date and month when the typed date parses', () => {
+test('should commit an ISO date and month when the typed date parses', () => {
   expect(datePartAfterType('8 Sep 2026')).toEqual({
     type: 'valid',
     draft: '8 Sep 2026',

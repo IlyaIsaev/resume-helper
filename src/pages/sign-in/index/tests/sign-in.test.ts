@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 
 import { signInSchema } from '../model/sign-in';
 
-test('accepts a valid email and password', () => {
+test('should accept the payload when email and password are valid', () => {
   const result = v.safeParse(signInSchema, {
     email: 'user@example.com',
     password: 'password1',
@@ -12,7 +12,7 @@ test('accepts a valid email and password', () => {
   expect(result.success).toBe(true);
 });
 
-test('rejects an invalid email', () => {
+test('should reject the payload when the email is invalid', () => {
   const result = v.safeParse(signInSchema, {
     email: 'not-an-email',
     password: 'password1',
@@ -21,7 +21,7 @@ test('rejects an invalid email', () => {
   expect(result.success).toBe(false);
 });
 
-test('rejects a short password', () => {
+test('should reject the payload when the password is too short', () => {
   const result = v.safeParse(signInSchema, {
     email: 'user@example.com',
     password: 'short',

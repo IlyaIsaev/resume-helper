@@ -13,7 +13,7 @@ const firstLetter = (namePart: string): string => namePart[0] ?? '';
 
 const toUpperCase = (text: string): string => text.toUpperCase();
 
-const buildUserInitials = (name: string): string => {
+export const buildUserInitials = (name: string): string => {
   const initials = pipe(
     name.split(/\s+/),
     compact(),

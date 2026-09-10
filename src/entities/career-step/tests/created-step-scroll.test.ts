@@ -7,7 +7,7 @@ const IDLE_STATUS = {
   isFetchingNextPage: false,
 } as const;
 
-test('does nothing without a created step id', () => {
+test('should stay idle when there is no created step id', () => {
   expect(
     createdStepScrollAction({
       scrollToId: null,
@@ -19,7 +19,7 @@ test('does nothing without a created step id', () => {
   });
 });
 
-test('scrolls to the created step once it is loaded', () => {
+test('should scroll to the created step when it is in the loaded items', () => {
   expect(
     createdStepScrollAction({
       scrollToId: 'b',
@@ -32,7 +32,7 @@ test('scrolls to the created step once it is loaded', () => {
   });
 });
 
-test('waits while the list is refetching or paging', () => {
+test('should wait when the list is refetching or paging', () => {
   expect(
     createdStepScrollAction({
       scrollToId: 'missing',
@@ -57,7 +57,7 @@ test('waits while the list is refetching or paging', () => {
   ).toEqual({ type: 'wait' });
 });
 
-test('loads the next page when the created step is not in the loaded items', () => {
+test('should load the next page when the created step is not in the loaded items', () => {
   expect(
     createdStepScrollAction({
       scrollToId: 'missing',
@@ -71,7 +71,7 @@ test('loads the next page when the created step is not in the loaded items', () 
   ).toEqual({ type: 'fetchNext' });
 });
 
-test('waits when the created step is not in the loaded items yet', () => {
+test('should wait when the created step is not in the loaded items yet', () => {
   expect(
     createdStepScrollAction({
       scrollToId: 'missing',

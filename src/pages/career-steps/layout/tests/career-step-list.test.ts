@@ -5,18 +5,18 @@ import {
   shouldLoadMoreCareerSteps,
 } from '../model/career-step-list';
 
-test('shows the empty list copy when search is blank', () => {
+test('should show the empty list copy when search is blank', () => {
   expect(careerStepsEmptyMessage('')).toBe('No career steps yet.');
   expect(careerStepsEmptyMessage('   ')).toBe('No career steps yet.');
 });
 
-test('shows the search miss copy when search has text', () => {
+test('should show the search miss copy when search has text', () => {
   expect(careerStepsEmptyMessage('engineer')).toBe(
     'No career steps match your search.',
   );
 });
 
-test('does not load more when the list is empty or the last row is not visible', () => {
+test('should not load more when the list is empty or the last row is not visible', () => {
   expect(
     shouldLoadMoreCareerSteps({
       lastVisibleIndex: -1,
@@ -35,7 +35,7 @@ test('does not load more when the list is empty or the last row is not visible',
   ).toBe(false);
 });
 
-test('loads more when the last visible row is the last loaded row', () => {
+test('should load more when the last visible row is the last loaded row', () => {
   expect(
     shouldLoadMoreCareerSteps({
       lastVisibleIndex: 9,
@@ -46,7 +46,7 @@ test('loads more when the last visible row is the last loaded row', () => {
   ).toBe(true);
 });
 
-test('does not load more while the next page is in flight or missing', () => {
+test('should not load more when the next page is in flight or missing', () => {
   expect(
     shouldLoadMoreCareerSteps({
       lastVisibleIndex: 9,

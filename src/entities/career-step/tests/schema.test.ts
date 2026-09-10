@@ -1,7 +1,9 @@
 import * as v from 'valibot';
 import { expect, test } from 'vitest';
 import {
+  type CareerStep,
   careerStepSchema,
+  careerStepToFormValues,
   deleteCareerStepSchema,
   updateCareerStepSchema,
 } from '../model/schema';
@@ -13,13 +15,23 @@ const VALID_STEP = {
   technologies: 'TypeScript, PostgreSQL',
 } as const;
 
-test('accepts a complete career step', () => {
+const CLOSED_CAREER_STEP = {
+  id: 'step-1',
+  position: VALID_STEP.position,
+  startedOn: VALID_STEP.dates.from,
+  endedOn: VALID_STEP.dates.to,
+  description: VALID_STEP.description,
+  technologies: VALID_STEP.technologies,
+  createdAt: '2026-01-01T00:00:00.000Z',
+} as const satisfies CareerStep;
+
+test('should accept the payload when all career step fields are valid', () => {
   const result = v.safeParse(careerStepSchema, VALID_STEP);
 
   expect(result.success).toBe(true);
 });
 
-test('accepts a start date without an end date', () => {
+test('should accept the payload when the end date is empty', () => {
   const result = v.safeParse(careerStepSchema, {
     ...VALID_STEP,
     dates: { from: '2020-01-15', to: '' },
@@ -28,7 +40,7 @@ test('accepts a start date without an end date', () => {
   expect(result.success).toBe(true);
 });
 
-test('trims whitespace from fields', () => {
+test('should trim whitespace when position, description, and technologies have padding', () => {
   const result = v.safeParse(careerStepSchema, {
     position: '  Senior Engineer  ',
     dates: VALID_STEP.dates,
@@ -42,7 +54,7 @@ test('trims whitespace from fields', () => {
   }
 });
 
-test('rejects an empty position', () => {
+test('should reject the payload when the position is empty', () => {
   const result = v.safeParse(careerStepSchema, {
     ...VALID_STEP,
     position: '   ',
@@ -51,7 +63,7 @@ test('rejects an empty position', () => {
   expect(result.success).toBe(false);
 });
 
-test('rejects an empty description', () => {
+test('should reject the payload when the description is empty', () => {
   const result = v.safeParse(careerStepSchema, {
     ...VALID_STEP,
     description: '',
@@ -60,7 +72,7 @@ test('rejects an empty description', () => {
   expect(result.success).toBe(false);
 });
 
-test('rejects empty technologies', () => {
+test('should reject the payload when technologies is empty', () => {
   const result = v.safeParse(careerStepSchema, {
     ...VALID_STEP,
     technologies: '',
@@ -69,7 +81,7 @@ test('rejects empty technologies', () => {
   expect(result.success).toBe(false);
 });
 
-test('rejects a missing start date', () => {
+test('should reject the payload when the start date is missing', () => {
   const result = v.safeParse(careerStepSchema, {
     ...VALID_STEP,
     dates: { from: '', to: '' },
@@ -78,7 +90,7 @@ test('rejects a missing start date', () => {
   expect(result.success).toBe(false);
 });
 
-test('rejects an end date before the start date', () => {
+test('should reject the payload when the end date is before the start date', () => {
   const result = v.safeParse(careerStepSchema, {
     ...VALID_STEP,
     dates: { from: '2024-03-01', to: '2020-01-15' },
@@ -87,7 +99,7 @@ test('rejects an end date before the start date', () => {
   expect(result.success).toBe(false);
 });
 
-test('accepts an update payload with an id', () => {
+test('should accept the update payload when it includes an id', () => {
   const result = v.safeParse(updateCareerStepSchema, {
     id: 'step-1',
     ...VALID_STEP,
@@ -96,26 +108,39 @@ test('accepts an update payload with an id', () => {
   expect(result.success).toBe(true);
 });
 
-test('rejects an update payload without an id', () => {
+test('should reject the update payload when it has no id', () => {
   const result = v.safeParse(updateCareerStepSchema, VALID_STEP);
 
   expect(result.success).toBe(false);
 });
 
-test('accepts a delete payload with an id', () => {
+test('should accept the delete payload when it includes an id', () => {
   const result = v.safeParse(deleteCareerStepSchema, { id: 'step-1' });
 
   expect(result.success).toBe(true);
 });
 
-test('rejects a delete payload without an id', () => {
+test('should reject the delete payload when it has no id', () => {
   const result = v.safeParse(deleteCareerStepSchema, {});
 
   expect(result.success).toBe(false);
 });
 
-test('rejects a delete payload with an empty id', () => {
+test('should reject the delete payload when the id is empty', () => {
   const result = v.safeParse(deleteCareerStepSchema, { id: '' });
 
   expect(result.success).toBe(false);
+});
+
+test('should copy fields into the form when the step has a closed date range', () => {
+  expect(careerStepToFormValues(CLOSED_CAREER_STEP)).toEqual(VALID_STEP);
+});
+
+test('should use an empty end date when endedOn is null', () => {
+  expect(
+    careerStepToFormValues({ ...CLOSED_CAREER_STEP, endedOn: null }),
+  ).toEqual({
+    ...VALID_STEP,
+    dates: { from: VALID_STEP.dates.from, to: '' },
+  });
 });
