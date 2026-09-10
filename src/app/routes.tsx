@@ -1,17 +1,12 @@
-import { reatomRoute, urlAtom, wrap } from '@reatom/core';
+import { reatomRoute, urlAtom } from '@reatom/core';
 import { lazy, Suspense } from 'react';
 
 import {
   careerSteps,
-  careerStepsQuery,
-  careerStepsSort,
-  initCareerStep,
-  initCareerSteps,
-  resetCareerSteps,
-} from '@/entities/career-step';
-import { initUpdateCareerStepForm } from '@/features/career-steps/update-career-step';
-import { initSignIn } from '@/pages/sign-in/index/model/sign-in';
-import { clientApi } from '@/shared/api';
+  loadCareerSteps,
+  loadEditCareerStep,
+} from '@/pages/career-steps';
+import { loadSignIn } from '@/pages/sign-in';
 import { session } from '@/shared/auth';
 import {
   CAREER_STEPS_PATH,
@@ -24,23 +19,23 @@ import { PageFallback } from '@/shared/ui';
 
 import { Header } from './header';
 
-const CareerStepsLayout = lazy(
-  () => import('@/pages/career-steps/layout/ui/layout'),
+const CareerStepsLayout = lazy(() =>
+  import('@/pages/career-steps').then((module) => ({
+    default: module.CareerStepsLayout,
+  })),
 );
 
-const CareerStepsPage = lazy(
-  () => import('@/pages/career-steps/index/ui/career-steps-page'),
+const EditCareerStepPage = lazy(() =>
+  import('@/pages/career-steps').then((module) => ({
+    default: module.EditCareerStepPage,
+  })),
 );
 
-const EditCareerStepPage = lazy(
-  () => import('@/pages/career-steps/edit/index/ui/edit-career-step-page'),
-);
+const SignInPage = lazy(() => import('@/pages/sign-in'));
 
-const SignInPage = lazy(() => import('@/pages/sign-in/index/ui/sign-in-page'));
+const SignUpPage = lazy(() => import('@/pages/sign-up'));
 
-const SignUpPage = lazy(() => import('@/pages/sign-up/index/ui/sign-up-page'));
-
-const ProfilePage = lazy(() => import('@/pages/profile/index/ui/profile-page'));
+const ProfilePage = lazy(() => import('@/pages/profile'));
 
 export const rootRoute = reatomRoute(
   {
@@ -64,10 +59,6 @@ export const protectedRoute = rootRoute.reatomRoute(
       if (!session.ready() && !onAuthPage) return {};
 
       const user = session.data()?.user;
-
-      if (!user && careerSteps() !== null) {
-        resetCareerSteps();
-      }
 
       if (!user && !onAuthPage) {
         signInRoute.go(undefined, true);
@@ -117,14 +108,7 @@ export const careerStepsRoute = protectedRoute.reatomRoute(
     async loader() {
       if (!session.data()?.user) return;
 
-      const page = await wrap(
-        clientApi.loadCareerSteps({
-          query: careerStepsQuery(),
-          sort: careerStepsSort(),
-        }),
-      );
-
-      initCareerSteps(page);
+      await loadCareerSteps();
     },
     render(self) {
       self.loader.ready();
@@ -137,7 +121,7 @@ export const careerStepsRoute = protectedRoute.reatomRoute(
       return (
         <CareerStepsLayout key="careerStepsRoute">
           <Suspense fallback={<PageFallback />}>
-            {child.length > 0 ? child : <CareerStepsPage />}
+            {child.length > 0 ? child : null}
           </Suspense>
         </CareerStepsLayout>
       );
@@ -155,15 +139,10 @@ export const editCareerStepRoute = careerStepsRoute.reatomRoute(
       return { stepId };
     },
     async loader({ stepId }) {
-      const step = await wrap(clientApi.loadCareerStep(stepId));
+      const step = await loadEditCareerStep(stepId);
       if (!step) {
         careerStepsRoute.go(undefined, true);
-
-        return;
       }
-
-      initCareerStep(step);
-      initUpdateCareerStepForm();
     },
     render(self) {
       if (!self.loader.ready())
@@ -178,21 +157,7 @@ export const editCareerStepRoute = careerStepsRoute.reatomRoute(
 export const profileRoute = protectedRoute.reatomRoute(
   {
     path: PROFILE_PATH.slice(1),
-    async loader() {
-      const user = session.data()?.user;
-      if (!user) return null;
-
-      return {
-        name: user.name,
-        email: user.email,
-      };
-    },
-    render(self) {
-      if (!self.loader.ready()) return <PageFallback key="profileRoute" />;
-
-      const user = self.loader.data();
-      if (!user) return <PageFallback key="profileRoute" />;
-
+    render() {
       return <ProfilePage key="profileRoute" />;
     },
   },
@@ -212,9 +177,7 @@ export const signInRoute = rootRoute.reatomRoute(
     async loader() {
       if (session.data()?.user) return;
 
-      const credentials = await wrap(clientApi.loadDemoUser());
-
-      initSignIn(credentials);
+      await loadSignIn();
     },
     render(self) {
       if (!self.loader.ready()) return <PageFallback key="signInRoute" />;

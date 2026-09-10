@@ -1,8 +1,9 @@
 import { reatomComponent } from '@reatom/react';
 
-import { ThemeSwitcher } from '@/features/theme-switcher';
-import { UserMenu } from '@/features/user/user-menu';
 import { HOME_PATH } from '@/shared/config';
+
+import { ThemeSwitcher } from './theme-switcher';
+import { UserMenu } from './user-menu';
 
 export const Header = reatomComponent(() => {
   return (
