@@ -9,6 +9,12 @@ import {
 } from '@reatom/core';
 
 import {
+  careerStep,
+  initCareerStep,
+  refetchCareerSteps,
+  updateInCareerSteps,
+} from '@/entities/career-step';
+import {
   careerStepSchema,
   careerStepToFormValues,
   EMPTY_CAREER_STEP_VALUES,
@@ -17,13 +23,6 @@ import {
 import { clientApi } from '@/shared/api';
 import { HOME_PATH } from '@/shared/config';
 import { toast } from '@/shared/ui';
-
-import {
-  careerStep,
-  initCareerStep,
-  refetchCareerSteps,
-  updateInCareerSteps,
-} from './career-steps';
 
 export const updatedCareerStepId = atom<string | null>(
   null,

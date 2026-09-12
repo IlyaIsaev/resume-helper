@@ -12,7 +12,7 @@ import {
   formatIsoDate,
   parseIsoDate,
   parseTypedDate,
-} from '../lib/dates';
+} from '@/entities/career-step';
 
 export type DatePartAfterType =
   | { type: 'empty'; draft: string }

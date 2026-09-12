@@ -8,16 +8,15 @@ import {
 } from '@reatom/core';
 import { findIndex, pipe } from 'es-toolkit/fp';
 
-import { type CareerStep, clientApi } from '@/shared/api';
-import { toast } from '@/shared/ui';
-
 import {
   careerSteps,
   careerStepsQuery,
   refetchCareerSteps,
   removeFromCareerSteps,
   restoreToCareerSteps,
-} from './career-steps';
+} from '@/entities/career-step';
+import { type CareerStep, clientApi } from '@/shared/api';
+import { toast } from '@/shared/ui';
 
 export const deletedCareerStepId = atom<string | null>(
   null,

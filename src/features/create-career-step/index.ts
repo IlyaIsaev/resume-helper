@@ -1,4 +1,3 @@
-export { formatCareerDateRange } from './lib/dates';
 export type { CareerDateRange } from './model/career-date-part';
 export { reatomCareerDateRange } from './model/career-date-part';
 export { careerStepCreated } from './model/create-career-step';
