@@ -1,3 +1,5 @@
+import '@/features/sort-career-step';
+
 import './model/sync-created-career-step';
 
 export { careerSteps, loadCareerSteps } from '@/entities/career-step';

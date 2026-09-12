@@ -8,6 +8,7 @@ import {
   CAREER_STEPS_PATH,
   HOME_PATH,
   PROFILE_PATH,
+  pathWithSearch,
   SIGN_IN_PATH,
   SIGN_UP_PATH,
 } from '@/shared/config';
@@ -143,7 +144,7 @@ export const editCareerStepRoute = careerStepsRoute.reatomRoute(
     async loader({ stepId }) {
       const step = await loadEditCareerStep(stepId);
       if (!step) {
-        urlAtom.go(CAREER_STEPS_PATH, true);
+        urlAtom.go(pathWithSearch(CAREER_STEPS_PATH), true);
       }
     },
     render(self) {

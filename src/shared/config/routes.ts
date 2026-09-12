@@ -1,3 +1,5 @@
+import { urlAtom } from '@reatom/core';
+
 export const HOME_PATH = '/' as const;
 
 export const SIGN_IN_PATH = '/sign-in' as const;
@@ -12,3 +14,6 @@ export const careerStepEditPath = (
   stepId: string,
 ): `${typeof CAREER_STEPS_PATH}/${string}/edit` =>
   `${CAREER_STEPS_PATH}/${stepId}/edit`;
+
+export const pathWithSearch = (path: string): string =>
+  `${path}${urlAtom().search}`;

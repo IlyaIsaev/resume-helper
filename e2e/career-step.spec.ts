@@ -369,8 +369,37 @@ test('sorts career steps by start date', async ({ page }) => {
   );
 
   await page.getByRole('option', { name: 'Oldest' }).click();
+  await expect(page).toHaveURL('/career-steps?sort=startedOn-asc');
   await expect(cards.nth(0)).toContainText('Product Designer');
   await expect(cards.nth(1)).toContainText('Senior Engineer');
+
+  await page.reload();
+  await expect(page).toHaveURL('/career-steps?sort=startedOn-asc');
+  await expect(cards.nth(0)).toContainText('Product Designer');
+  await expect(cards.nth(1)).toContainText('Senior Engineer');
+
+  await cards.nth(0).hover();
+  await cards.nth(0).getByRole('link', { name: 'Edit career step' }).click();
+  await expect(page).toHaveURL(
+    /\/career-steps\/[^/]+\/edit\?sort=startedOn-asc$/,
+  );
+  await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
+  await expect(page).toHaveURL('/career-steps?sort=startedOn-asc');
+  await expect(cards.nth(0)).toContainText('Product Designer');
+
+  await page.goBack();
+  await expect(page).toHaveURL(
+    /\/career-steps\/[^/]+\/edit\?sort=startedOn-asc$/,
+  );
+  await page.goForward();
+  await expect(page).toHaveURL('/career-steps?sort=startedOn-asc');
+  await expect(cards.nth(0)).toContainText('Product Designer');
+
+  await page.getByRole('combobox', { name: 'Sort career steps' }).click();
+  await page.getByRole('option', { name: 'Newest' }).click();
+  await expect(page).toHaveURL('/career-steps');
+  await expect(cards.nth(0)).toContainText('Senior Engineer');
+  await expect(cards.nth(1)).toContainText('Product Designer');
 });
 
 async function expectCardsDoNotOverlapAddButton(page: Page) {

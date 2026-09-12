@@ -28,8 +28,10 @@ export {
   restoreToCareerSteps,
   updateInCareerSteps,
 } from './model/career-steps';
+export type { CareerStepSort } from './model/list-query';
 export {
   CAREER_STEP_SORT_OPTIONS,
+  DEFAULT_CAREER_STEP_SORT,
   isCareerStepSort,
 } from './model/list-query';
 export { CareerStepFields } from './ui/career-step-fields';
