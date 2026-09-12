@@ -1,39 +1,37 @@
 import { wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
+import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 
 import {
-  CAREER_STEP_SORT_OPTIONS,
   careerStepsSort,
+  DEFAULT_CAREER_STEP_SORT,
 } from '@/entities/career-step';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui';
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui';
 
-import { changeCareerStepsSort } from '../model/sort-career-step';
+import {
+  careerStepsSortButtonLabel,
+  careerStepsSortTooltip,
+  toggleCareerStepsSort,
+} from '../model/sort-career-step';
 
 export const SortCareerStep = reatomComponent(() => {
-  const sort = careerStepsSort();
+  const isNewestFirst = careerStepsSort() === DEFAULT_CAREER_STEP_SORT;
 
   return (
-    <Select value={sort} onValueChange={wrap(changeCareerStepsSort)}>
-      <SelectTrigger
-        id="career-step-sort"
-        className="w-fit shrink-0"
-        aria-label="Sort career steps"
-      >
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent position="popper" align="end">
-        {CAREER_STEP_SORT_OPTIONS.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="shrink-0"
+          aria-label={careerStepsSortButtonLabel()}
+          onClick={wrap(toggleCareerStepsSort)}
+        >
+          {isNewestFirst ? <ArrowDownWideNarrow /> : <ArrowUpNarrowWide />}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{careerStepsSortTooltip()}</TooltipContent>
+    </Tooltip>
   );
 }, 'SortCareerStep');

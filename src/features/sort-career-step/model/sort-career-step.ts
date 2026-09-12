@@ -1,4 +1,9 @@
-import { action, withChangeHook, withSearchParams } from '@reatom/core';
+import {
+  action,
+  computed,
+  withChangeHook,
+  withSearchParams,
+} from '@reatom/core';
 
 import {
   type CareerStepSort,
@@ -35,8 +40,24 @@ careerStepsSort.extend(
   }),
 );
 
-export const changeCareerStepsSort = action((value: string) => {
-  if (!isCareerStepSort(value)) return;
+export const nextCareerStepSort = (sort: CareerStepSort): CareerStepSort =>
+  sort === DEFAULT_CAREER_STEP_SORT
+    ? 'startedOn-asc'
+    : DEFAULT_CAREER_STEP_SORT;
 
-  careerStepsSort.set(value);
-}, 'changeCareerStepsSort');
+export const careerStepsSortButtonLabel = computed(() => {
+  if (careerStepsSort() === DEFAULT_CAREER_STEP_SORT)
+    return 'Sort oldest first';
+
+  return 'Sort newest first';
+}, 'careerStepsSortButtonLabel');
+
+export const careerStepsSortTooltip = computed(() => {
+  if (careerStepsSort() === DEFAULT_CAREER_STEP_SORT) return 'Newest first';
+
+  return 'Oldest first';
+}, 'careerStepsSortTooltip');
+
+export const toggleCareerStepsSort = action(() => {
+  careerStepsSort.set(nextCareerStepSort);
+}, 'toggleCareerStepsSort');

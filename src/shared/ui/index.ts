@@ -68,3 +68,4 @@ export { Skeleton } from './skeleton';
 export { Toaster } from './sonner';
 export { Spinner } from './spinner';
 export { Textarea } from './textarea';
+export { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';

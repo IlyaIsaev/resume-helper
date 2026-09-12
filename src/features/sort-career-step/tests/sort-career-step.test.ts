@@ -5,6 +5,7 @@ import { DEFAULT_CAREER_STEP_SORT } from '@/entities/career-step';
 import {
   careerStepsSortFromSearchParam,
   careerStepsSortToSearchParam,
+  nextCareerStepSort,
 } from '../model/sort-career-step';
 
 test('should keep startedOn sorts and fall back to newest when the search param is missing or invalid', () => {
@@ -24,4 +25,9 @@ test('should keep startedOn sorts and fall back to newest when the search param 
 test('should omit newest from the search param and keep oldest', () => {
   expect(careerStepsSortToSearchParam('startedOn-desc')).toBeUndefined();
   expect(careerStepsSortToSearchParam('startedOn-asc')).toBe('startedOn-asc');
+});
+
+test('should switch between newest and oldest when toggling sort', () => {
+  expect(nextCareerStepSort('startedOn-desc')).toBe('startedOn-asc');
+  expect(nextCareerStepSort('startedOn-asc')).toBe('startedOn-desc');
 });
