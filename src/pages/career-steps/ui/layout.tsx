@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
+
+import { CreateCareerStep } from '@/features/create-career-step';
+
 import { CareerStepList } from './career-step-list';
-import { CreateCareerStep } from './create-career-step-dialog';
 
 type CareerStepsLayoutProps = {
   children?: ReactNode;

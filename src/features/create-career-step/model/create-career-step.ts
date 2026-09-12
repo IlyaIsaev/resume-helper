@@ -7,21 +7,15 @@ import {
   wrap,
 } from '@reatom/core';
 
-import { clientApi } from '@/shared/api';
+import { type CareerStep, clientApi } from '@/shared/api';
 import { toast } from '@/shared/ui';
 
 import { reatomCareerDateRange } from './career-date-part';
-import {
-  addToCareerSteps,
-  careerStepsQuery,
-  refetchCareerSteps,
-  requestScrollToCreatedCareerStep,
-} from './career-steps';
-import {
-  type CareerStep,
-  careerStepSchema,
-  EMPTY_CAREER_STEP_VALUES,
-} from './schema';
+import { careerStepSchema, EMPTY_CAREER_STEP_VALUES } from './schema';
+
+export const careerStepCreated = action((step: CareerStep) => {
+  return step;
+}, 'careerStepCreated');
 
 export const isCreateCareerStepDialogOpen = reatomBoolean(
   false,
@@ -72,16 +66,6 @@ export const createCareerStepForm = reatomForm(EMPTY_CAREER_STEP_VALUES, {
   },
 });
 
-const syncCreatedCareerStep = action(async (created: CareerStep) => {
-  if (careerStepsQuery().length === 0) {
-    addToCareerSteps(created);
-  }
-
-  requestScrollToCreatedCareerStep(created.id);
-
-  await wrap(refetchCareerSteps());
-}, 'syncCreatedCareerStep');
-
 createCareerStepForm.submit.onFulfill.extend(
   withCallHook(({ payload: created }) => {
     if (!created) return;
@@ -90,7 +74,7 @@ createCareerStepForm.submit.onFulfill.extend(
 
     toast.success(`Career step “${created.position}” was created.`);
 
-    void wrap(syncCreatedCareerStep(created));
+    careerStepCreated(created);
   }),
 );
 

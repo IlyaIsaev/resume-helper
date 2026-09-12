@@ -1,6 +1,8 @@
 import { reatomComponent } from '@reatom/react';
 import { Pencil } from 'lucide-react';
 
+import { formatCareerDateRange } from '@/features/create-career-step';
+import type { CareerStep } from '@/shared/api';
 import { careerStepEditPath } from '@/shared/config';
 import {
   Button,
@@ -11,8 +13,6 @@ import {
   CardTitle,
 } from '@/shared/ui';
 
-import { formatCareerDateRange } from '../lib/dates';
-import type { CareerStep } from '../model/schema';
 import { DeleteCareerStep } from './delete-career-step-dialog';
 
 type CareerStepCardProps = {

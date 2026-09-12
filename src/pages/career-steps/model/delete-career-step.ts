@@ -8,7 +8,7 @@ import {
 } from '@reatom/core';
 import { findIndex, pipe } from 'es-toolkit/fp';
 
-import { clientApi } from '@/shared/api';
+import { type CareerStep, clientApi } from '@/shared/api';
 import { toast } from '@/shared/ui';
 
 import {
@@ -18,7 +18,6 @@ import {
   removeFromCareerSteps,
   restoreToCareerSteps,
 } from './career-steps';
-import type { CareerStep } from './schema';
 
 export const deletedCareerStepId = atom<string | null>(
   null,

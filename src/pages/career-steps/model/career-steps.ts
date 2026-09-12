@@ -5,11 +5,13 @@ import {
   effect,
   withAbort,
   withAsync,
+  withCallHook,
   wrap,
 } from '@reatom/core';
 import { filter, flatten, map, pipe } from 'es-toolkit/fp';
 
-import { clientApi } from '@/shared/api';
+import { careerStepCreated } from '@/features/create-career-step';
+import { type CareerStep, clientApi } from '@/shared/api';
 import { session } from '@/shared/auth';
 
 import { createdStepScrollAction } from '../lib/created-step-scroll';
@@ -18,7 +20,6 @@ import {
   type CareerStepSort,
   DEFAULT_CAREER_STEP_SORT,
 } from './list-query';
-import type { CareerStep } from './schema';
 
 export const careerSteps = atom<ReadonlyArray<CareerStep> | null>(
   null,
@@ -176,3 +177,19 @@ effect(() => {
 
   resetCareerSteps();
 }, 'resetCareerStepsWhenSignedOut');
+
+const syncCreatedCareerStep = action(async (created: CareerStep) => {
+  if (careerStepsQuery().length === 0) {
+    addToCareerSteps(created);
+  }
+
+  requestScrollToCreatedCareerStep(created.id);
+
+  await wrap(refetchCareerSteps());
+}, 'syncCreatedCareerStep');
+
+careerStepCreated.extend(
+  withCallHook((created) => {
+    void wrap(syncCreatedCareerStep(created));
+  }),
+);

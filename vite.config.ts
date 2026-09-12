@@ -27,6 +27,7 @@ export default defineConfig({
       '@': srcRoot,
       '@/app': resolve(srcRoot, 'app'),
       '@/pages': resolve(srcRoot, 'pages'),
+      '@/features': resolve(srcRoot, 'features'),
       '@/shared': resolve(srcRoot, 'shared'),
     },
   },

@@ -18,7 +18,8 @@
     "test:e2e": "playwright test",
     "check": "biome check . && pnpm lint:fsd",
     "check:write": "biome check --write .",
-    "lint:fsd": "steiger src"
+    "lint:fsd": "steiger src",
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "@hono/valibot-validator": "^0.6.1",

@@ -8,22 +8,22 @@ import {
   wrap,
 } from '@reatom/core';
 
+import {
+  careerStepSchema,
+  careerStepToFormValues,
+  EMPTY_CAREER_STEP_VALUES,
+  reatomCareerDateRange,
+} from '@/features/create-career-step';
 import { clientApi } from '@/shared/api';
 import { HOME_PATH } from '@/shared/config';
 import { toast } from '@/shared/ui';
 
-import { reatomCareerDateRange } from './career-date-part';
 import {
   careerStep,
   initCareerStep,
   refetchCareerSteps,
   updateInCareerSteps,
 } from './career-steps';
-import {
-  careerStepSchema,
-  careerStepToFormValues,
-  EMPTY_CAREER_STEP_VALUES,
-} from './schema';
 
 export const updatedCareerStepId = atom<string | null>(
   null,

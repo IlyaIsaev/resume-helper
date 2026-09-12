@@ -1,5 +1,7 @@
 import { wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
+
+import { CareerStepFields } from '@/features/create-career-step';
 import {
   Button,
   Dialog,
@@ -11,6 +13,7 @@ import {
   Form,
   FormMessage,
 } from '@/shared/ui';
+
 import {
   isUpdateCareerStepSubmitDisabled,
   setUpdateCareerStepDialogOpen,
@@ -18,7 +21,6 @@ import {
   updateCareerStepForm,
   updateCareerStepSubmitLabel,
 } from '../model/update-career-step';
-import { CareerStepFields } from './career-step-fields';
 
 export const UpdateCareerStep = reatomComponent(() => {
   const { fields, submit } = updateCareerStepForm;

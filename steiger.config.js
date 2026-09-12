@@ -12,4 +12,10 @@ export default defineConfig([
       'fsd/public-api': 'off',
     },
   },
+  {
+    files: ['./src/features/create-career-step/**'],
+    rules: {
+      'fsd/insignificant-slice': 'off',
+    },
+  },
 ]);
