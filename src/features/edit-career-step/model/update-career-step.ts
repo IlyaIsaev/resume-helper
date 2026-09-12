@@ -19,7 +19,11 @@ import {
   updateInCareerSteps,
 } from '@/entities/career-step';
 import { clientApi } from '@/shared/api';
-import { CAREER_STEPS_PATH, pathWithSearch } from '@/shared/config';
+import {
+  CAREER_STEPS_PATH,
+  careerStepIdFromEditPath,
+  pathWithSearch,
+} from '@/shared/config';
 import { toast } from '@/shared/ui';
 
 export const updatedCareerStepId = atom<string | null>(
@@ -93,6 +97,15 @@ export const initUpdateCareerStepForm = action(() => {
 }, 'initUpdateCareerStepForm');
 
 export const loadEditCareerStep = async (stepId: string) => {
+  const loaded = careerStep();
+  if (loaded?.id === stepId) {
+    initUpdateCareerStepForm();
+
+    return loaded;
+  }
+
+  initCareerStep(null);
+
   const step = await wrap(clientApi.loadCareerStep(stepId));
   if (!step) return null;
 
@@ -101,6 +114,13 @@ export const loadEditCareerStep = async (stepId: string) => {
 
   return step;
 };
+
+export const isUpdateCareerStepFormReady = computed(() => {
+  const stepId = careerStepIdFromEditPath(urlAtom().pathname);
+  if (!stepId) return false;
+
+  return careerStep()?.id === stepId;
+}, 'isUpdateCareerStepFormReady');
 
 export const updateCareerStepDateParts = reatomCareerDateRange({
   fromField: updateCareerStepForm.fields.dates.from,

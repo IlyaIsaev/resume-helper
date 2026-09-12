@@ -146,7 +146,7 @@ export const editCareerStepRoute = careerStepsRoute.reatomRoute(
       }
     },
     render(self) {
-      if (!self.loader.ready()) return <></>;
+      self.loader.ready();
 
       return <EditCareerStepPage key="editCareerStepRoute" />;
     },

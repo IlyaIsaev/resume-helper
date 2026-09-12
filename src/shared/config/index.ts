@@ -1,6 +1,7 @@
 export {
   CAREER_STEPS_PATH,
   careerStepEditPath,
+  careerStepIdFromEditPath,
   HOME_PATH,
   PROFILE_PATH,
   pathWithSearch,

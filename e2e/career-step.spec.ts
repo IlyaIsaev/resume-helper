@@ -67,6 +67,40 @@ async function addSeniorEngineerStep(page: Page) {
   });
 }
 
+async function openCareerStepEdit(page: Page, position: string) {
+  const card = page.getByTestId('career-step-card').filter({
+    has: page.getByText(position, { exact: true }),
+  });
+  await card.hover();
+  await card.getByRole('link', { name: 'Edit career step' }).click();
+}
+
+async function holdSingleCareerStepGet(page: Page) {
+  let releaseHold = () => {};
+  const hold = new Promise<void>((resolve) => {
+    releaseHold = resolve;
+  });
+
+  await page.route('**/api/career-steps/**', async (route) => {
+    const pathname = new URL(route.request().url()).pathname;
+    const isSingleStepGet =
+      route.request().method() === 'GET' &&
+      /^\/api\/career-steps\/[^/]+$/.test(pathname);
+
+    if (!isSingleStepGet) {
+      await route.continue();
+      return;
+    }
+
+    await hold;
+    await route.continue();
+  });
+
+  return () => {
+    releaseHold();
+  };
+}
+
 test('add career step is focused when the career page opens', async ({
   page,
 }) => {
@@ -248,6 +282,94 @@ test('opens a prefilled edit dialog from the career step URL', async ({
   );
   await expect(editDialog.getByLabel('Technologies')).toHaveValue(
     'TypeScript, PostgreSQL',
+  );
+});
+
+test('shows field skeletons while the edit step is loading', async ({
+  page,
+}) => {
+  await signInAsDemoUser(page);
+  await addSeniorEngineerStep(page);
+
+  const releaseHold = await holdSingleCareerStepGet(page);
+
+  await openCareerStepEdit(page, 'Senior Engineer');
+
+  const editDialog = page.getByRole('dialog');
+  await expect(editDialog).toBeVisible();
+  await expect(
+    editDialog.getByRole('heading', { name: 'Edit career step' }),
+  ).toBeVisible();
+  await expect(
+    editDialog.locator('[data-slot="skeleton"]').first(),
+  ).toBeVisible();
+  await expect(editDialog.getByLabel('Position')).toHaveCount(0);
+
+  releaseHold();
+
+  await expect(editDialog.getByLabel('Position')).toHaveValue(
+    'Senior Engineer',
+  );
+});
+
+test('reuses loaded step data when the same edit dialog is reopened', async ({
+  page,
+}) => {
+  await signInAsDemoUser(page);
+  await addSeniorEngineerStep(page);
+
+  await openCareerStepEdit(page, 'Senior Engineer');
+
+  const editDialog = page.getByRole('dialog');
+  await expect(editDialog.getByLabel('Position')).toHaveValue(
+    'Senior Engineer',
+  );
+  await editDialog.getByRole('button', { name: 'Close' }).click();
+  await expect(editDialog).toBeHidden();
+
+  await holdSingleCareerStepGet(page);
+  await openCareerStepEdit(page, 'Senior Engineer');
+
+  await expect(editDialog).toBeVisible();
+  await expect(editDialog.getByLabel('Position')).toHaveValue(
+    'Senior Engineer',
+  );
+  await expect(editDialog.locator('[data-slot="skeleton"]')).toHaveCount(0);
+});
+
+test('shows field skeletons when editing a different career step', async ({
+  page,
+}) => {
+  await signInAsDemoUser(page);
+  await addSeniorEngineerStep(page);
+  await addCareerStep(page, {
+    position: 'Product Designer',
+    description: 'Designed the mobile app',
+    technologies: 'Figma',
+  });
+
+  await openCareerStepEdit(page, 'Senior Engineer');
+
+  const editDialog = page.getByRole('dialog');
+  await expect(editDialog.getByLabel('Position')).toHaveValue(
+    'Senior Engineer',
+  );
+  await editDialog.getByRole('button', { name: 'Close' }).click();
+  await expect(editDialog).toBeHidden();
+
+  const releaseHold = await holdSingleCareerStepGet(page);
+  await openCareerStepEdit(page, 'Product Designer');
+
+  await expect(editDialog).toBeVisible();
+  await expect(
+    editDialog.locator('[data-slot="skeleton"]').first(),
+  ).toBeVisible();
+  await expect(editDialog.getByLabel('Position')).toHaveCount(0);
+
+  releaseHold();
+
+  await expect(editDialog.getByLabel('Position')).toHaveValue(
+    'Product Designer',
   );
 });
 
