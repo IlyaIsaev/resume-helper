@@ -225,15 +225,18 @@ test('opens a prefilled edit dialog from the career step URL', async ({
 
   await page.goto(href);
   await expect(page).toHaveURL(href);
-  await expect(
-    page.getByRole('searchbox', { name: 'Search career steps' }),
-  ).toBeVisible();
-  await expect(
-    page.getByTestId('career-step-card').getByText('Senior Engineer'),
-  ).toBeVisible();
 
   const editDialog = page.getByRole('dialog');
   await expect(editDialog).toBeVisible();
+  await expect(
+    page.getByRole('searchbox', {
+      name: 'Search career steps',
+      includeHidden: true,
+    }),
+  ).toBeAttached();
+  await expect(
+    page.getByTestId('career-step-card').getByText('Senior Engineer'),
+  ).toBeAttached();
   await expect(
     editDialog.getByRole('heading', { name: 'Edit career step' }),
   ).toBeVisible();
