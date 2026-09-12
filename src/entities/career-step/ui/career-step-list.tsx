@@ -4,45 +4,32 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { type ReactNode, useLayoutEffect, useRef } from 'react';
 
 import type { CareerStep } from '@/shared/api';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui';
 
 import {
   bindCareerStepListScroller,
   careerStepListViewportHeight,
   careerStepsEmptyCopy,
-  changeCareerStepsSort,
   reportCareerStepListVirtualizer,
   setCareerStepListViewportHeight,
 } from '../model/career-step-list';
-import {
-  careerSteps,
-  careerStepsSort,
-  createdCareerStepId,
-} from '../model/career-steps';
+import { careerSteps, createdCareerStepId } from '../model/career-steps';
 import {
   CAREER_STEP_LIST_ESTIMATE_SIZE,
   CAREER_STEP_LIST_GAP,
   CAREER_STEP_LIST_MAX_HEIGHT,
-  CAREER_STEP_SORT_OPTIONS,
   careerStepListRangeExtractor,
 } from '../model/list-query';
 import { CareerStepCard } from './career-step-card';
 
 type CareerStepListProps = {
   searchSlot?: ReactNode;
+  sortSlot?: ReactNode;
   editSlot?: (step: CareerStep) => ReactNode;
   deleteSlot?: (step: CareerStep) => ReactNode;
 };
 
 export const CareerStepList = reatomComponent(
-  ({ searchSlot, editSlot, deleteSlot }: CareerStepListProps) => {
-    const sort = careerStepsSort();
+  ({ searchSlot, sortSlot, editSlot, deleteSlot }: CareerStepListProps) => {
     const items = careerSteps() ?? [];
     const createdStepId = createdCareerStepId();
     const listViewportHeight = careerStepListViewportHeight();
@@ -100,22 +87,7 @@ export const CareerStepList = reatomComponent(
       <div className="flex min-h-0 flex-1 flex-col gap-4">
         <div className="flex items-center gap-3">
           {searchSlot}
-          <Select value={sort} onValueChange={wrap(changeCareerStepsSort)}>
-            <SelectTrigger
-              id="career-step-sort"
-              className="w-fit shrink-0"
-              aria-label="Sort career steps"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent position="popper" align="end">
-              {CAREER_STEP_SORT_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {sortSlot}
         </div>
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">

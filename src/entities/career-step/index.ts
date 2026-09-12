@@ -18,6 +18,8 @@ export {
   careerStep,
   careerSteps,
   careerStepsQuery,
+  careerStepsSort,
+  clearCreatedCareerStepScroll,
   initCareerStep,
   loadCareerSteps,
   refetchCareerSteps,
@@ -26,5 +28,9 @@ export {
   restoreToCareerSteps,
   updateInCareerSteps,
 } from './model/career-steps';
+export {
+  CAREER_STEP_SORT_OPTIONS,
+  isCareerStepSort,
+} from './model/list-query';
 export { CareerStepFields } from './ui/career-step-fields';
 export { CareerStepList } from './ui/career-step-list';

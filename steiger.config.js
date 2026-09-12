@@ -43,6 +43,12 @@ export default defineConfig([
     },
   },
   {
+    files: ['./src/features/sort-career-step/**'],
+    rules: {
+      'fsd/insignificant-slice': 'off',
+    },
+  },
+  {
     files: ['./src/entities/career-step/**'],
     rules: {
       'fsd/insignificant-slice': 'off',

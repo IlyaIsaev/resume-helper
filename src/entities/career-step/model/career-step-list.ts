@@ -3,7 +3,6 @@ import { action, atom, computed, effect, wrap } from '@reatom/core';
 import {
   careerSteps,
   careerStepsQuery,
-  careerStepsSort,
   clearCreatedCareerStepScroll,
   createdCareerStepId,
   createdCareerStepScrollAction,
@@ -11,7 +10,6 @@ import {
   loadMoreCareerSteps,
   refetchCareerSteps,
 } from './career-steps';
-import { isCareerStepSort } from './list-query';
 
 export type CareerStepListScroller = {
   scrollToIndex: (index: number, options: { align: 'start' }) => void;
@@ -62,15 +60,6 @@ export const careerStepListScroller = atom<CareerStepListScroller | null>(
   null,
   'careerStepListScroller',
 );
-
-export const changeCareerStepsSort = action((value: string) => {
-  if (!isCareerStepSort(value)) return;
-
-  careerStepsSort.set(value);
-  clearCreatedCareerStepScroll();
-
-  void wrap(refetchCareerSteps());
-}, 'changeCareerStepsSort');
 
 export const setCareerStepListViewportHeight = action((height: number) => {
   careerStepListViewportHeight.set(height);

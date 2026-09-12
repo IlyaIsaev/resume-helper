@@ -5,6 +5,7 @@ import { CreateCareerStep } from '@/features/create-career-step';
 import { DeleteCareerStep } from '@/features/delete-career-step';
 import { EditCareerStep } from '@/features/edit-career-step';
 import { SearchCareerStep } from '@/features/search-career-step';
+import { SortCareerStep } from '@/features/sort-career-step';
 
 type CareerStepsLayoutProps = {
   children?: ReactNode;
@@ -16,6 +17,7 @@ export function CareerStepsLayout({ children }: CareerStepsLayoutProps) {
       <section className="flex min-h-0 flex-1 flex-col gap-4 pb-4">
         <CareerStepList
           searchSlot={<SearchCareerStep />}
+          sortSlot={<SortCareerStep />}
           editSlot={(step) => <EditCareerStep stepId={step.id} />}
           deleteSlot={(step) => (
             <DeleteCareerStep stepId={step.id} position={step.position} />
