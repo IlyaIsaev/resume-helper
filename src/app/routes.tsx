@@ -123,9 +123,7 @@ export const careerStepsRoute = protectedRoute.reatomRoute(
 
       return (
         <CareerStepsLayout key="careerStepsRoute">
-          <Suspense fallback={<PageFallback />}>
-            {child.length > 0 ? child : null}
-          </Suspense>
+          <Suspense fallback={null}>{child.length > 0 ? child : null}</Suspense>
         </CareerStepsLayout>
       );
     },
@@ -148,8 +146,7 @@ export const editCareerStepRoute = careerStepsRoute.reatomRoute(
       }
     },
     render(self) {
-      if (!self.loader.ready())
-        return <PageFallback key="editCareerStepRoute" />;
+      if (!self.loader.ready()) return <></>;
 
       return <EditCareerStepPage key="editCareerStepRoute" />;
     },
