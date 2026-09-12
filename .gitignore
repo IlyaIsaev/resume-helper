@@ -22,3 +22,6 @@ playwright/.cache/
 lefthook-local.yml
 .cursor/skills/verify-resume-helper/.run/
 .cursor/skills/verify-resume-helper/evidence/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
