@@ -1,3 +1,5 @@
+import { range } from 'es-toolkit';
+
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TYPED_DISPLAY_DATE = /^(\d{1,2})\s+([A-Za-z]+)\.?\s+(\d{4})$/;
 const CAREER_STEP_CALENDAR_START_YEAR = 1970;
@@ -11,7 +13,7 @@ const displayFormatter = new Intl.DateTimeFormat('en-GB', {
 const monthIndexByName = (() => {
   const names = new Map<string, number>();
 
-  for (let month = 0; month < 12; month += 1) {
+  for (const month of range(12)) {
     const date = new Date(2026, month, 1);
     for (const locale of ['en-GB', 'en-US'] as const) {
       for (const monthStyle of ['short', 'long'] as const) {

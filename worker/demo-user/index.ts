@@ -1,5 +1,7 @@
 import { vValidator } from '@hono/valibot-validator';
 import { eq } from 'drizzle-orm';
+import { range } from 'es-toolkit';
+import { join, map, pipe } from 'es-toolkit/fp';
 import { type Context, Hono } from 'hono';
 import {
   deleteCookie,
@@ -55,10 +57,11 @@ const selectRandomPasswordCharacter = (): string => {
 };
 
 const createDemoPassword = (): string => {
-  const randomCharacters = Array.from(
-    { length: 16 },
-    selectRandomPasswordCharacter,
-  ).join('');
+  const randomCharacters = pipe(
+    range(16),
+    map(selectRandomPasswordCharacter),
+    join(''),
+  );
 
   return `${randomCharacters}Aa1!`;
 };

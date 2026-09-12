@@ -141,7 +141,7 @@ export const loadMoreCareerSteps = action(async () => {
       }),
     );
 
-    careerSteps.set([...(careerSteps() ?? []), ...page.items]);
+    careerSteps.set(pipe([careerSteps() ?? [], page.items], flatten()));
     careerStepsCursor.set(page.nextCursor);
   } catch {
     return;
@@ -159,7 +159,10 @@ export const clearCreatedCareerStepScroll = action(() => {
 export const createdCareerStepScrollAction = action(() => {
   return createdStepScrollAction({
     scrollToId: createdCareerStepId(),
-    itemIds: (careerSteps() ?? []).map((step) => step.id),
+    itemIds: pipe(
+      careerSteps() ?? [],
+      map((step) => step.id),
+    ),
     status: {
       isFetching: !refetchCareerSteps.ready(),
       hasNextPage: hasNextCareerStepsPage(),

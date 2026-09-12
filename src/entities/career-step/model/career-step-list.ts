@@ -1,4 +1,6 @@
 import { action, atom, computed, effect, wrap } from '@reatom/core';
+import { last } from 'es-toolkit';
+import { findIndex, pipe } from 'es-toolkit/fp';
 
 import {
   careerSteps,
@@ -75,7 +77,7 @@ export const bindCareerStepListScroller = action(
 export const reportCareerStepListVirtualizer = action(
   (instance: { getVirtualItems: () => ReadonlyArray<{ index: number }> }) => {
     const virtualItems = instance.getVirtualItems();
-    const lastItem = virtualItems[virtualItems.length - 1];
+    const lastItem = last(virtualItems);
     if (lastItem === undefined) {
       lastVisibleCareerStepIndex.set(-1);
 
@@ -132,8 +134,9 @@ export const applyCreatedCareerStepScroll = action(async () => {
 
       if (createdCareerStepId() !== scrollToId) return;
 
-      const nextIndex = (careerSteps() ?? []).findIndex(
-        (step) => step.id === scrollToId,
+      const nextIndex = pipe(
+        careerSteps() ?? [],
+        findIndex((step) => step.id === scrollToId),
       );
       if (nextIndex < 0) {
         clearCreatedCareerStepScroll();

@@ -1,4 +1,5 @@
 import type { Range } from '@tanstack/react-virtual';
+import { clamp, range } from 'es-toolkit';
 import * as v from 'valibot';
 
 export const CAREER_STEP_SORT_OPTIONS = [
@@ -55,7 +56,7 @@ export const careerStepListInputSchema = v.object({
       v.number(),
       v.integer(),
       v.minValue(1),
-      v.transform((value) => Math.min(value, CAREER_STEP_PAGE_SIZE)),
+      v.transform((value) => clamp(value, CAREER_STEP_PAGE_SIZE)),
     ),
     CAREER_STEP_PAGE_SIZE,
   ),
@@ -65,21 +66,21 @@ export type CareerStepListInput = v.InferOutput<
   typeof careerStepListInputSchema
 >;
 
-export const careerStepListRangeExtractor = (range: Range): Array<number> => {
-  if (range.count <= 0) return [];
+export const careerStepListRangeExtractor = ({
+  startIndex,
+  endIndex,
+  count,
+}: Range): Array<number> => {
+  if (count <= 0) return [];
 
-  const start = Math.min(Math.max(range.startIndex, 0), range.count - 1);
+  const start = clamp(startIndex, 0, count - 1);
   const end = Math.min(
-    range.endIndex,
+    endIndex,
     start + CAREER_STEP_LIST_VISIBLE_LIMIT - 1,
-    range.count - 1,
+    count - 1,
   );
 
   if (end < start) return [];
 
-  const indexes: Array<number> = [];
-  for (let index = start; index <= end; index += 1) {
-    indexes.push(index);
-  }
-  return indexes;
+  return range(start, end + 1);
 };

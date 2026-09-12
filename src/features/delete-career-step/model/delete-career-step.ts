@@ -65,8 +65,9 @@ export const deleteCareerStep = action(async () => {
   const stepId = deletedCareerStepId();
   if (!stepId) return;
 
-  const index = pipe(careerSteps() ?? [], findIndex(hasCareerStepId(stepId)));
-  const step = (careerSteps() ?? [])[index];
+  const steps = careerSteps() ?? [];
+  const index = pipe(steps, findIndex(hasCareerStepId(stepId)));
+  const step = steps[index];
   const isSearchEmpty = careerStepsQuery().length === 0;
 
   closeDeleteCareerStepDialog();

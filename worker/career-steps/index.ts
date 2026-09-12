@@ -1,5 +1,7 @@
 import { vValidator } from '@hono/valibot-validator';
 import { and, asc, desc, eq, gt, isNull, lt, or, sql } from 'drizzle-orm';
+import { clamp, last } from 'es-toolkit';
+import { map, pipe, take } from 'es-toolkit/fp';
 import { type Context, Hono, type Next } from 'hono';
 import { csrf } from 'hono/csrf';
 import * as v from 'valibot';
@@ -105,7 +107,7 @@ const optionalLimitSchema = v.optional(
     v.number(),
     v.integer(),
     v.minValue(1),
-    v.transform((value) => Math.min(value, CAREER_STEP_PAGE_SIZE)),
+    v.transform((value) => clamp(value, CAREER_STEP_PAGE_SIZE)),
   ),
 );
 
@@ -279,13 +281,13 @@ export const careerSteps = new Hono<CareerStepsContext>()
       .limit(pageSize + 1);
 
     const hasMore = rows.length > pageSize;
-    const page = hasMore ? rows.slice(0, pageSize) : rows;
-    const last = page[page.length - 1];
+    const page = pipe(rows, take(pageSize));
+    const lastRow = last(page);
 
     return context.json(
       {
-        items: page.map(toCareerStep),
-        nextCursor: hasMore && last ? toListCursor(last) : null,
+        items: pipe(page, map(toCareerStep)),
+        nextCursor: hasMore && lastRow ? toListCursor(lastRow) : null,
       },
       200,
     );
