@@ -1,3 +1,4 @@
+import '@/features/search-career-step';
 import '@/features/sort-career-step';
 
 import './model/sync-created-career-step';

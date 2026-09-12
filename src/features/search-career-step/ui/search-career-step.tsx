@@ -1,13 +1,15 @@
 import { wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
 
-import { careerStepsQuery } from '@/entities/career-step';
 import { Input } from '@/shared/ui';
 
-import { changeCareerStepsQuery } from '../model/search-career-step';
+import {
+  careerStepsSearchDraft,
+  changeCareerStepsQuery,
+} from '../model/search-career-step';
 
 export const SearchCareerStep = reatomComponent(() => {
-  const query = careerStepsQuery();
+  const query = careerStepsSearchDraft();
 
   return (
     <Input

@@ -319,27 +319,47 @@ test('filters career steps across fields and restores the full list', async ({
   await expect(page.getByTestId('career-step-card')).toHaveCount(2);
 
   await search.fill('billing');
+  await expect(page).toHaveURL('/career-steps?q=billing');
   await expect(page.getByTestId('career-step-card')).toHaveCount(1);
   await expect(
     page.getByTestId('career-step-card').getByText('Senior Engineer'),
   ).toBeVisible();
 
+  await page.reload();
+  await expect(page).toHaveURL('/career-steps?q=billing');
+  await expect(search).toHaveValue('billing');
+  await expect(page.getByTestId('career-step-card')).toHaveCount(1);
+  await expect(
+    page.getByTestId('career-step-card').getByText('Senior Engineer'),
+  ).toBeVisible();
+
+  const card = page.getByTestId('career-step-card');
+  await card.hover();
+  await card.getByRole('link', { name: 'Edit career step' }).click();
+  await expect(page).toHaveURL(/\/career-steps\/[^/]+\/edit\?q=billing$/);
+  await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
+  await expect(page).toHaveURL('/career-steps?q=billing');
+
   await search.fill('figma');
+  await expect(page).toHaveURL('/career-steps?q=figma');
   await expect(page.getByTestId('career-step-card')).toHaveCount(1);
   await expect(
     page.getByTestId('career-step-card').getByText('Product Designer'),
   ).toBeVisible();
 
   await search.fill('present');
+  await expect(page).toHaveURL('/career-steps?q=present');
   await expect(page.getByTestId('career-step-card')).toHaveCount(2);
 
   await search.fill('no such career step');
+  await expect(page).toHaveURL('/career-steps?q=no+such+career+step');
   await expect(page.getByTestId('career-step-card')).toHaveCount(0);
   await expect(
     page.getByText('No career steps match your search.'),
   ).toBeVisible();
 
   await search.fill('');
+  await expect(page).toHaveURL('/career-steps');
   await expect(page.getByTestId('career-step-card')).toHaveCount(2);
 });
 
