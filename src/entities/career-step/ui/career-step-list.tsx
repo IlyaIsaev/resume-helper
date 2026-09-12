@@ -5,7 +5,6 @@ import { type ReactNode, useLayoutEffect, useRef } from 'react';
 
 import type { CareerStep } from '@/shared/api';
 import {
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -17,14 +16,12 @@ import {
   bindCareerStepListScroller,
   careerStepListViewportHeight,
   careerStepsEmptyCopy,
-  changeCareerStepsQuery,
   changeCareerStepsSort,
   reportCareerStepListVirtualizer,
   setCareerStepListViewportHeight,
 } from '../model/career-step-list';
 import {
   careerSteps,
-  careerStepsQuery,
   careerStepsSort,
   createdCareerStepId,
 } from '../model/career-steps';
@@ -38,13 +35,13 @@ import {
 import { CareerStepCard } from './career-step-card';
 
 type CareerStepListProps = {
+  searchSlot?: ReactNode;
   editSlot?: (step: CareerStep) => ReactNode;
   deleteSlot?: (step: CareerStep) => ReactNode;
 };
 
 export const CareerStepList = reatomComponent(
-  ({ editSlot, deleteSlot }: CareerStepListProps) => {
-    const query = careerStepsQuery();
+  ({ searchSlot, editSlot, deleteSlot }: CareerStepListProps) => {
     const sort = careerStepsSort();
     const items = careerSteps() ?? [];
     const createdStepId = createdCareerStepId();
@@ -102,16 +99,7 @@ export const CareerStepList = reatomComponent(
     return (
       <div className="flex min-h-0 flex-1 flex-col gap-4">
         <div className="flex items-center gap-3">
-          <Input
-            id="career-step-search"
-            type="search"
-            value={query}
-            onChange={wrap(changeCareerStepsQuery)}
-            placeholder="Search career steps"
-            aria-label="Search career steps"
-            autoComplete="off"
-            className="min-w-0 flex-1"
-          />
+          {searchSlot}
           <Select value={sort} onValueChange={wrap(changeCareerStepsSort)}>
             <SelectTrigger
               id="career-step-sort"

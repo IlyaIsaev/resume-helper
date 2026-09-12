@@ -8,7 +8,3 @@ export const updateCareerStepSchema = v.intersect([
   }),
   careerStepSchema,
 ]);
-
-export const deleteCareerStepSchema = v.object({
-  id: v.pipe(v.string(), v.minLength(1, 'Id is required')),
-});

@@ -13,7 +13,25 @@ export default defineConfig([
     },
   },
   {
+    files: ['./src/features', './src/features/**'],
+    rules: {
+      'fsd/repetitive-naming': 'off',
+    },
+  },
+  {
     files: ['./src/features/create-career-step/**'],
+    rules: {
+      'fsd/insignificant-slice': 'off',
+    },
+  },
+  {
+    files: ['./src/features/delete-career-step/**'],
+    rules: {
+      'fsd/insignificant-slice': 'off',
+    },
+  },
+  {
+    files: ['./src/features/search-career-step/**'],
     rules: {
       'fsd/insignificant-slice': 'off',
     },

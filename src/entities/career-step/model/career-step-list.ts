@@ -1,5 +1,5 @@
 import { action, atom, computed, effect, wrap } from '@reatom/core';
-import { searchCareerSteps } from './career-step-search';
+
 import {
   careerSteps,
   careerStepsQuery,
@@ -61,13 +61,6 @@ export const careerStepListViewportHeight = atom(
 export const careerStepListScroller = atom<CareerStepListScroller | null>(
   null,
   'careerStepListScroller',
-);
-
-export const changeCareerStepsQuery = action(
-  (event: { target: { value: string } }) => {
-    searchCareerSteps(event.target.value);
-  },
-  'changeCareerStepsQuery',
 );
 
 export const changeCareerStepsSort = action((value: string) => {
