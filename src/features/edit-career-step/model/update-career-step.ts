@@ -19,7 +19,7 @@ import {
   updateInCareerSteps,
 } from '@/entities/career-step';
 import { clientApi } from '@/shared/api';
-import { HOME_PATH } from '@/shared/config';
+import { CAREER_STEPS_PATH } from '@/shared/config';
 import { toast } from '@/shared/ui';
 
 export const updatedCareerStepId = atom<string | null>(
@@ -28,7 +28,7 @@ export const updatedCareerStepId = atom<string | null>(
 );
 
 export const closeUpdateCareerStepDialog = action(() => {
-  urlAtom.go(HOME_PATH);
+  urlAtom.go(CAREER_STEPS_PATH);
 }, 'closeUpdateCareerStepDialog');
 
 export const setUpdateCareerStepDialogOpen = action((shouldOpen: boolean) => {

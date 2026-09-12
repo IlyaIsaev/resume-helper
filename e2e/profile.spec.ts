@@ -35,7 +35,7 @@ test('sign out from the avatar menu reuses the same demo user', async ({
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page).toHaveURL('/', { timeout: 20_000 });
+  await expect(page).toHaveURL('/career-steps', { timeout: 20_000 });
   await expect(
     page.getByRole('button', { name: 'Open account menu' }),
   ).toBeVisible();
@@ -46,7 +46,7 @@ test('signed-in users opening sign-in are sent to career steps', async ({
 }) => {
   await signInAsDemoUser(page);
   await page.goto('/sign-in');
-  await expect(page).toHaveURL('/');
+  await expect(page).toHaveURL('/career-steps');
   await expect(page.getByRole('button', { name: 'Sign in' })).toHaveCount(0);
 });
 

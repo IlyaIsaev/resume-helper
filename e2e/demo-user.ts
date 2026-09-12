@@ -15,7 +15,7 @@ export const signInAsDemoUser = async (
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeEnabled();
   await page.getByRole('button', { name: 'Sign in' }).click();
 
-  await expect(page).toHaveURL('/', { timeout: 20_000 });
+  await expect(page).toHaveURL('/career-steps', { timeout: 20_000 });
   await expect(
     page.getByRole('button', { name: 'Open account menu' }),
   ).toBeVisible();

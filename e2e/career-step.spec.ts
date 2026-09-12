@@ -174,7 +174,7 @@ test('edits a career step from the card', async ({ page }) => {
   ).toBeEnabled();
   await editDialog.getByRole('button', { name: 'Update career step' }).click();
   await expect(editDialog).toBeHidden();
-  await expect(page).toHaveURL('/');
+  await expect(page).toHaveURL('/career-steps');
   await expect(
     page.getByText('Career step “Senior Engineer” was updated.'),
   ).toBeVisible();
@@ -205,7 +205,7 @@ test('closes the edit dialog and returns to the career page', async ({
 
   await editDialog.getByRole('button', { name: 'Close' }).click();
   await expect(editDialog).toBeHidden();
-  await expect(page).toHaveURL('/');
+  await expect(page).toHaveURL('/career-steps');
   await expect(card.getByText('Senior Engineer')).toBeVisible();
 });
 

@@ -65,7 +65,13 @@ export const protectedRoute = rootRoute.reatomRoute(
       if (!user && onAuthPage) return null;
 
       if (onAuthPage) {
-        urlAtom.go(HOME_PATH, true);
+        urlAtom.go(CAREER_STEPS_PATH, true);
+
+        return null;
+      }
+
+      if (pathname === HOME_PATH) {
+        urlAtom.go(CAREER_STEPS_PATH, true);
 
         return null;
       }
@@ -93,7 +99,7 @@ export const careerStepsRoute = protectedRoute.reatomRoute(
       const { pathname } = urlAtom();
       if (pathname === PROFILE_PATH) return null;
       if (
-        pathname !== HOME_PATH &&
+        pathname !== CAREER_STEPS_PATH &&
         !pathname.startsWith(`${CAREER_STEPS_PATH}/`)
       ) {
         return null;
@@ -137,7 +143,7 @@ export const editCareerStepRoute = careerStepsRoute.reatomRoute(
     async loader({ stepId }) {
       const step = await loadEditCareerStep(stepId);
       if (!step) {
-        careerStepsRoute.go(undefined, true);
+        urlAtom.go(CAREER_STEPS_PATH, true);
       }
     },
     render(self) {
