@@ -12,19 +12,27 @@ import {
 } from '@/shared/ui';
 
 import {
-  closeDeleteUserDialog,
-  deleteUser,
-  deleteUserConfirmLabel,
-  isDeleteUserDialogOpen,
-  setDeleteUserDialogOpen,
-} from '../model/delete-user';
+  closeDeleteAccountDialog,
+  deleteAccount,
+  deleteAccountConfirmLabel,
+  isDeleteAccountDialogOpen,
+  openDeleteAccount,
+  setDeleteAccountDialogOpen,
+} from '../model/delete-account';
 
-export const DeleteUser = reatomComponent(() => {
+export const DeleteAccount = reatomComponent(() => {
   return (
     <Dialog
-      open={isDeleteUserDialogOpen()}
-      onOpenChange={wrap(setDeleteUserDialogOpen)}
+      open={isDeleteAccountDialogOpen()}
+      onOpenChange={wrap(setDeleteAccountDialogOpen)}
     >
+      <Button
+        type="button"
+        variant="destructive"
+        onClick={wrap(openDeleteAccount)}
+      >
+        Delete account
+      </Button>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Delete account</DialogTitle>
@@ -36,20 +44,20 @@ export const DeleteUser = reatomComponent(() => {
           <Button
             type="button"
             variant="outline"
-            onClick={wrap(closeDeleteUserDialog)}
+            onClick={wrap(closeDeleteAccountDialog)}
           >
             Cancel
           </Button>
           <Button
             type="button"
             variant="destructive"
-            disabled={!deleteUser.ready()}
-            onClick={wrap(deleteUser)}
+            disabled={!deleteAccount.ready()}
+            onClick={wrap(deleteAccount)}
           >
-            {deleteUserConfirmLabel()}
+            {deleteAccountConfirmLabel()}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}, 'DeleteUser');
+}, 'DeleteAccount');

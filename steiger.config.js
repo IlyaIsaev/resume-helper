@@ -25,6 +25,12 @@ export default defineConfig([
     },
   },
   {
+    files: ['./src/features/delete-account/**'],
+    rules: {
+      'fsd/insignificant-slice': 'off',
+    },
+  },
+  {
     files: ['./src/features/delete-career-step/**'],
     rules: {
       'fsd/insignificant-slice': 'off',
