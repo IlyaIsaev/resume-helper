@@ -1,7 +1,7 @@
 import { wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
 
-import { CareerStepFields } from '@/features/create-career-step';
+import { CareerStepFields } from '@/entities/career-step';
 import {
   Button,
   Dialog,

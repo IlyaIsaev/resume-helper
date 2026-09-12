@@ -1,11 +1,7 @@
 import { reatomRoute, urlAtom } from '@reatom/core';
 import { lazy, Suspense } from 'react';
-
-import {
-  careerSteps,
-  loadCareerSteps,
-  loadEditCareerStep,
-} from '@/pages/career-steps';
+import { loadEditCareerStep } from '@/pages/career-steps/edit';
+import { careerSteps, loadCareerSteps } from '@/pages/career-steps/index';
 import { loadSignIn } from '@/pages/sign-in';
 import { session } from '@/shared/auth';
 import {
@@ -20,13 +16,13 @@ import { PageFallback } from '@/shared/ui';
 import { Header } from './header';
 
 const CareerStepsLayout = lazy(() =>
-  import('@/pages/career-steps').then((module) => ({
+  import('@/pages/career-steps/index').then((module) => ({
     default: module.CareerStepsLayout,
   })),
 );
 
 const EditCareerStepPage = lazy(() =>
-  import('@/pages/career-steps').then((module) => ({
+  import('@/pages/career-steps/edit').then((module) => ({
     default: module.EditCareerStepPage,
   })),
 );

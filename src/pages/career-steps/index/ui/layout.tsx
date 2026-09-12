@@ -3,9 +3,8 @@ import type { ReactNode } from 'react';
 import { CareerStepList } from '@/entities/career-step';
 import { CreateCareerStep } from '@/features/create-career-step';
 import { DeleteCareerStep } from '@/features/delete-career-step';
+import { EditCareerStep } from '@/features/edit-career-step';
 import { SearchCareerStep } from '@/features/search-career-step';
-
-import { EditCareerStep } from './edit-career-step';
 
 type CareerStepsLayoutProps = {
   children?: ReactNode;

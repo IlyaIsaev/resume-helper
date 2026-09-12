@@ -3,7 +3,10 @@ import { expect, test } from 'vitest';
 
 import type { CareerStep } from '@/shared/api';
 
-import { careerStepSchema, careerStepToFormValues } from '../model/schema';
+import {
+  careerStepSchema,
+  careerStepToFormValues,
+} from '../model/career-step-form';
 
 const VALID_STEP = {
   position: 'Senior Engineer',

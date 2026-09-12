@@ -1,6 +1,7 @@
 import { wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
 
+import { CareerStepFields } from '@/entities/career-step';
 import {
   Button,
   Dialog,
@@ -22,7 +23,6 @@ import {
   openCreateCareerStep,
   setCreateCareerStepDialogOpen,
 } from '../model/create-career-step';
-import { CareerStepFields } from './career-step-fields';
 
 export const CreateCareerStep = reatomComponent(() => {
   const isDialogOpen = isCreateCareerStepDialogOpen();

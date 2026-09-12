@@ -1,4 +1,4 @@
-import { UpdateCareerStep } from './update-career-step-dialog';
+import { UpdateCareerStep } from '@/features/edit-career-step';
 
 export function EditCareerStepPage() {
   return <UpdateCareerStep />;

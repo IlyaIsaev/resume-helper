@@ -10,16 +10,14 @@ import {
 
 import {
   careerStep,
-  initCareerStep,
-  refetchCareerSteps,
-  updateInCareerSteps,
-} from '@/entities/career-step';
-import {
   careerStepSchema,
   careerStepToFormValues,
   EMPTY_CAREER_STEP_VALUES,
+  initCareerStep,
   reatomCareerDateRange,
-} from '@/features/create-career-step';
+  refetchCareerSteps,
+  updateInCareerSteps,
+} from '@/entities/career-step';
 import { clientApi } from '@/shared/api';
 import { HOME_PATH } from '@/shared/config';
 import { toast } from '@/shared/ui';

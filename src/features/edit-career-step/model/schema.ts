@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 
-import { careerStepSchema } from '@/features/create-career-step';
+import { careerStepSchema } from '@/entities/career-step';
 
 export const updateCareerStepSchema = v.intersect([
   v.object({

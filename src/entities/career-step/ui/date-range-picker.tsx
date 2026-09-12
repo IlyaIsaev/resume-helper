@@ -2,7 +2,6 @@ import { wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
 import { CalendarIcon } from 'lucide-react';
 
-import { careerStepCalendarBounds } from '@/entities/career-step';
 import {
   Button,
   Calendar,
@@ -13,6 +12,7 @@ import {
   PopoverTrigger,
 } from '@/shared/ui';
 
+import { careerStepCalendarBounds } from '../lib/dates';
 import type {
   CareerDatePart,
   CareerDateRange,

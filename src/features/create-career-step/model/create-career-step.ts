@@ -7,11 +7,13 @@ import {
   wrap,
 } from '@reatom/core';
 
+import {
+  careerStepSchema,
+  EMPTY_CAREER_STEP_VALUES,
+  reatomCareerDateRange,
+} from '@/entities/career-step';
 import { type CareerStep, clientApi } from '@/shared/api';
 import { toast } from '@/shared/ui';
-
-import { reatomCareerDateRange } from './career-date-part';
-import { careerStepSchema, EMPTY_CAREER_STEP_VALUES } from './schema';
 
 export const careerStepCreated = action((step: CareerStep) => {
   return step;
